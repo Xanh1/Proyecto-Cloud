@@ -1,23 +1,15 @@
 from flask import Flask
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-import pymysql
-pymysql.install_as_MySQLdb()
-from init_base import init
+from app.models import db
+from app.routes import incident_blueprint
 
-Base = SQLAlchemy()
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///incidents.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-def create_app():
-    app = Flask(__name__, instance_relative_config = False)
+db.init_app(app)
 
-    CORS(app)
-    
-    #TODO
-    app.config.from_object('config.config.Config')
-    
-    Base.init_app(app)
-    
-    with app.app_context():
-        Base.create_all()
-    
-    return app
+# Registrar rutas
+app.register_blueprint(incident_blueprint)
+
+if __name__ == '__main__':
+    app.run(debug=True)

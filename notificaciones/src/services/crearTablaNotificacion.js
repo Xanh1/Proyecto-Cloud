@@ -5,8 +5,7 @@ const crearTablaNotificacion = `
           titulo VARCHAR(255) NOT NULL,
           mensaje TEXT NOT NULL,
           estado TEXT NOT NULL,
-          reporte_id INT NOT NULL,
-          FOREIGN KEY (reporte_id) REFERENCES incident(id) ON DELETE CASCADE
+          reporte_id INT NOT NULL
         );
       `;
 

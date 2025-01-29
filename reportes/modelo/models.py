@@ -1,12 +1,17 @@
-from flask_sqlalchemy import SQLAlchemy
+from database import db
 
-db = SQLAlchemy()
+class Reporte(db.Model):
+    __tablename__ = 'reportes'
 
-class Incident(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)  # ID único
+    usuario = db.Column(db.String(100), nullable=False)  # Usuario que crea el reporte
+    estado = db.Column(db.String(50), default='pendiente', nullable=False)  # Estado inicial
+    descripcion = db.Column(db.String(255), nullable=False)  # Descripción del reporte
 
-    def __init__(self, name, user_id):
-        self.name = name
-        self.user_id = user_id
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'usuario': self.usuario,
+            'estado': self.estado,
+            'descripcion': self.descripcion
+        }

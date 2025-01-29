@@ -18,7 +18,7 @@ PyMySQL==1.1.0
 python-dotenv==1.0.1
 SQLAlchemy==2.0.29
 Werkzeug==3.0.2
-Flask
-Flask-SQLAlchemy
-Flask-Migrate
-Flask-RESTful
+flask==2.3.2
+flask-sqlalchemy==3.0.5
+flask-migrate==4.0.4
+python-dotenv==1.0.0

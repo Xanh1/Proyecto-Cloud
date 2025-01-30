@@ -11,6 +11,9 @@ class Config:
     FLASK_APP = environ.get('FLASK_APP')
     FLASK_ENV = environ.get('FLASK_ENV')
 
+    # Keys
+    SECRET_KEY = environ.get('SECRET_KEY')
+
     # DB Config
     user = environ.get('MYSQL_USER')
     password = environ.get('MYSQL_PASSWORD')

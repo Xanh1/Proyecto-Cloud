@@ -11,7 +11,7 @@ api_persona = Blueprint('api_persona_persona', __name__)
 personaC = PersonaControl()
 
 @token_required
-@api_persona.route('/person')
+@api_persona.route('/users/person')
 @token_required
 def home():
     return make_response(
@@ -20,7 +20,7 @@ def home():
     )
 
 
-@api_persona.route('/person/save'   , methods = ["POST"])
+@api_persona.route('/users/person/save'   , methods = ["POST"])
 #@token_required
 @expects_json(save_person)
 def save_person():
@@ -38,7 +38,7 @@ def save_person():
     )
 
 
-@api_persona.route('/person/modify' , methods = ["POST"])
+@api_persona.route('/users/person/modify' , methods = ["POST"])
 @token_required
 @expects_json(edit_person)
 def modify_person():
@@ -55,7 +55,7 @@ def modify_person():
                 400
     )
 
-@api_persona.route('/person/modify/email' , methods = ["POST"])
+@api_persona.route('/users/person/modify/email' , methods = ["POST"])
 @token_required
 @expects_json(edit_person_email)
 def modify_personal_email():
@@ -72,7 +72,7 @@ def modify_personal_email():
                 400
     )
 
-@api_persona.route('/person/search/dni/<dni>' , methods = ["GET"])
+@api_persona.route('/users/person/search/dni/<dni>' , methods = ["GET"])
 @token_required
 def search_person_dni(dni):
     persona = personaC.searchPersonByDni(dni) 
@@ -87,7 +87,7 @@ def search_person_dni(dni):
             200
         )
     
-@api_persona.route('/person/search/uid/<uid>' , methods = ["GET"])
+@api_persona.route('/users/person/search/uid/<uid>' , methods = ["GET"])
 @token_required
 def search_person_uid(uid):
     persona = personaC.searchPersonByUid(uid) 
@@ -102,7 +102,7 @@ def search_person_uid(uid):
             200
         )
  
-@api_persona.route('/person/change_state' , methods = ["POST"])
+@api_persona.route('/users/person/change_state' , methods = ["POST"])
 @token_required
 @expects_json(change_state_person)
 def change_state_person():
@@ -124,7 +124,7 @@ def change_state_person():
                 400
     )
 
-@api_persona.route('/login', methods = ['POST'])
+@api_persona.route('/users/login', methods = ['POST'])
 @expects_json(schema_login)
 def login():
 

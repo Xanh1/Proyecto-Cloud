@@ -39,8 +39,8 @@ export default function login() {
         router.refresh();
       } else {
         swal({
-          title: "Error at login",
-          text: info.data.error,
+          title: "Error iniciando sesión",
+          text: 'Usuario o contraseña no válido',
           icon: "error",
           button: "Accept",
           timer: 4000,

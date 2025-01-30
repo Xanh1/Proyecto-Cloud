@@ -7,4 +7,5 @@ class Errors:
         "-5": "La contraseña no coincide con la actual",
         "-6": "No se encuentra",
         '-14': "No tiene el token",
+        '-11': "Usuario o contraseña incorrecta",
     }

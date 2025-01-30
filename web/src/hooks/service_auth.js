@@ -7,10 +7,9 @@ export async function authPerson(data) {
 
   try {
 
-    datos = await POST_AC("login", data);
+    datos = await POST_AC("users/login", data);
 
   } catch (error) {
-    console.log(error)
     return error;
     
   }
@@ -25,7 +24,7 @@ export async function validarToken(token) {
 
   try {
 
-    datos = await GET_AC("validar", token);
+    datos = await GET_AC("users/validar", token);
 
   } catch (error) {
     return error.response.data;

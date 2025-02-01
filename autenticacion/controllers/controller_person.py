@@ -36,8 +36,8 @@ class PersonaControl():
             persona.name = data['name'] 
             if (data['rol'] == 'municipal'):
                 persona.rol = 'municipal'
-            elif (data['rol'] == 'municipal'):
-                persona.rol = 'municipal'
+            elif (data['rol'] == 'ciudadano'):
+                persona.rol = 'ciudadano'
             else:
                 return -16
             persona.dni = data['dni']

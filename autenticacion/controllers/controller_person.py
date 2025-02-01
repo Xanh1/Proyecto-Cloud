@@ -144,7 +144,7 @@ class PersonaControl():
         if person.password != values['password']:
             return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
 
-        if person.rol == 'ciudadano':
+        if person.rol != 'municipal':
             return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-15)]}}), 400
 
         token = jwt.encode(

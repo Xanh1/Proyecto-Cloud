@@ -10,10 +10,19 @@ import { authPerson } from "../../hooks/service_auth";
 
 
 export default function login() {
+
   const loginSchema = Yup.object().shape({
-    email: Yup.string().trim().required("Ingresa tu correo"),
+    email: Yup.string()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@(unl\.edu\.ec|gmail\.com)$/,
+        "Ingrese un correo válido (@unl.edu.ec o gmail.com)"
+      )
+      .required("Ingresa tu correo").trim()
+      ,
     password: Yup.string().trim().required("Ingresa tu contraseña"),
   });
+
+
 
   const router = useRouter();
 
@@ -38,9 +47,10 @@ export default function login() {
         router.push("/person");
         router.refresh();
       } else {
+        
         swal({
           title: "Error iniciando sesión",
-          text: 'Usuario o contraseña no válido',
+          text: info.response.data.datos.error,
           icon: "error",
           button: "Accept",
           timer: 4000,
@@ -123,7 +133,7 @@ export default function login() {
           <label htmlFor="password" className="block text-sm font-medium mb-2">
             Contraseña
           </label>
-          <input
+          <input  
             type="password"
             name="password"
             id="password"
@@ -144,7 +154,7 @@ export default function login() {
         </div>
         <div className="my-4">
           <button className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2"
-          onClick={handleClick}>
+            onClick={handleClick}>
             <span className="w-56 h-48 rounded bg-blue-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
             <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
               Crear Cuenta

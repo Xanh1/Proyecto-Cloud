@@ -5,9 +5,10 @@ save_person = {
         'dni': {'type' : 'string'},
         'last_name': {'type' : 'string'},
         'email': {'type' : 'string'},
-        'password': {'type' : 'string'}
+        'password': {'type' : 'string'},
+        'rol' : {'rol' : 'string'},
     },
-    'required' : ['name','dni', 'last_name','email', 'password']
+    'required' : ['name','dni', 'last_name','email', 'password', 'rol']
 }
 
 edit_person = {
@@ -16,7 +17,7 @@ edit_person = {
         'external' : {'type': 'string'},
         'name': {'type' : 'string'},
         'last_name': {'type' : 'string'},
-        'email': {'type' : 'string'},
+        'email': {'type' : 'string'},   
         'password': {'type' : 'string'},
         'old_password' : {'type':'string'}
     },

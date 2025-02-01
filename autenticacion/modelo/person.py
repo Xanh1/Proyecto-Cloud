@@ -16,6 +16,7 @@ class Person(Base.Model):
     email     = Base.Column(Base.String(250), nullable = False, unique = True)
     password  = Base.Column(Base.String(162), nullable = False)
     status    = Base.Column(Base.Boolean, nullable = False)
+    rol       = Base.Column(Base.String(50), nullable = False)
     
     # audit fields
     created_at = Base.Column(Base.DateTime, default = datetime.now)
@@ -28,6 +29,7 @@ class Person(Base.Model):
             'uid'       : self.uid,
             'dni'       : self.dni,
             'name'      : self.name,
+            'rol'       : self.rol,
             'created_at' : self.created_at,
             'last_name' : self.last_name,
             'email'     : self.email,
@@ -39,6 +41,7 @@ class Person(Base.Model):
             id        = self.id,
             uid       = self.uid,
             name      = self.name,
+            rol       = self.rol,
             dni       = self.dni,
             last_name = self.last_name,
             created_at = self.created_at,

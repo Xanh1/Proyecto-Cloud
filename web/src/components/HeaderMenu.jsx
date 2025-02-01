@@ -107,7 +107,7 @@ export default function HeaderMenu() {
                 </g>
               </svg>
               <span className="self-center text-xl font-semibold sm:text-xl whitespace-nowrap dark:text-white">
-                O2M
+                Servicio de denuncias municipales
               </span>
             </Link>
           </div>

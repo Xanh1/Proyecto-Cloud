@@ -130,7 +130,7 @@ def login():
 
     values = request.json
 
-    response = personaC.login(values = values)
+    response = personaC.loginAppWeb(values = values)
 
-    return make_response(jsonify(response), response['code'])
+    return make_response(response)
     

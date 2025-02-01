@@ -21,14 +21,15 @@ export default function newPerson() {
     dni: yup
       .string()
       .required("Campos obligatorios")
-      .length(10, "El dni debe tener 10 caracteres"),
+      .length(10, "El dni debe tener 10 caracteres")
+      .matches(/^\d+$/, "El DNI solo debe contener números"),
     last_name: yup.string().required("Campos obligatorios"),
     email: yup.string().required("Campos obligatorios (@unl.edu.ec o gmail.com)").matches(
       /^[a-zA-Z0-9._%+-]+@(unl\.edu\.ec|gmail\.com)$/,
       "Ingrese un correo válido (@unl.edu.ec o gmail.com)"
     ),
     password: yup.string().required("Campos obligatorios"),
-    rol: yup.string().default("cliente"),
+    rol: yup.string().default("municipal"),
   });
 
   //validar formulario
@@ -79,7 +80,7 @@ export default function newPerson() {
         <div className="flex-1 py-6 sm:ml-64">
           <div className="py-4 rounded-lg mt-14">
             <h1 className="px-12 font-semilbold text-2xl text-left">
-              Registro de cuentas
+              Registro de cuentas con rol 'Municipal'
             </h1>
             <form
               className="my-8 flex flex-col justify-center items-center"

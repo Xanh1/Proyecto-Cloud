@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from flask import current_app
 from .utils.errors import Errors
 import re
+from flask import Blueprint, jsonify, make_response, request
 
 class PersonaControl():
 
@@ -33,6 +34,12 @@ class PersonaControl():
             persona = Person()
             persona.uid = uuid.uuid4()
             persona.name = data['name'] 
+            if (data['rol'] == 'municipal'):
+                persona.rol = 'municipal'
+            elif (data['rol'] == 'municipal'):
+                persona.rol = 'municipal'
+            else:
+                return -16
             persona.dni = data['dni']
             persona.last_name = data['last_name']
             persona.email = data['email']
@@ -128,28 +135,32 @@ class PersonaControl():
             return -6
         
     
-    def login(self, values):
-            
-        person = Person.query.filter_by(email = values['email']).first()
-            
+    def loginAppWeb(self, values):
+        person = Person.query.filter_by(email=values['email']).first()
+
         if not person:
-            return {'msg': 'error', 'code' : 400, 'data': {'error' : Errors.error[str(-11)]}}
-            
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
+
         if person.password != values['password']:
-            return {'msg': 'error', 'code' : 400, 'data': {'error' : Errors.error[str(-11)]}}
-            
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
+
+        if person.rol == 'ciudadano':
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-15)]}}), 400
+
         token = jwt.encode(
             {
-            'uid' : person.uid,
-            'exp' : datetime.utcnow() + timedelta(minutes = 20)
+                'uid': person.uid,
+                'exp': datetime.utcnow() + timedelta(minutes=20)
             },
-            key = current_app.config['SECRET_KEY'],
-            algorithm = 'HS512',
+            key=current_app.config['SECRET_KEY'],
+            algorithm='HS512',
         )
 
-        return {
-            'token'   : token,
-            'code'    : 200,
-            'person'  : person.name +" "+ person.last_name,
+        # Respuesta exitosa
+        response_data = {
+            'token': token,
+            'code': 200,
+            'person': person.name + " " + person.last_name,
             'necesary': person.uid
         }
+        return jsonify(response_data), 200

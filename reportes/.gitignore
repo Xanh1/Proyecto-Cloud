@@ -1,2 +1,3 @@
 virtual/
 __pycache__/
+reports.sqlite3

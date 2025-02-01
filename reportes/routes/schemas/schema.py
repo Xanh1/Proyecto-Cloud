@@ -7,3 +7,11 @@ create_report = {
     },
     'required': ['subject', 'description', 'user']
 }
+
+chage_status = {
+    'type': 'object',
+    'properties': {
+        'report': {'type': 'string'}
+    },
+    'required': ['report']
+}

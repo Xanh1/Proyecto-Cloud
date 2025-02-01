@@ -1,5 +1,5 @@
 from models.report import Report, ReportStatus
-
+import uuid
 from app import DB
 
 class ReportController:
@@ -8,6 +8,7 @@ class ReportController:
 
         report = Report()
         
+        report.uid = str(uuid.uuid4())
         report.subject = data['subject']
         report.user_id = data['user']
         report.description = data['description']
@@ -15,7 +16,12 @@ class ReportController:
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 'Reporte creado satisfactorio', 201
+        context = {
+            'msg': 'Reporte creado satisfactorio',
+            'reporte': report.id
+        }
+
+        return 'Ok', 201, context
 
     def get_reports_by_user(self, user):
         
@@ -38,14 +44,14 @@ class ReportController:
         report = Report.query.filter_by(uid=report).first()
 
         if not report:
-            return 'Error', 'El reporte no se ha encontrado', 404
+            return 'Error', 404, 'El reporte no se ha encontrado'
 
         report.status =  ReportStatus.IN_PROGRESS
 
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 'El reporte se ha iniciado correctamente', 200
+        return 'Ok', 200, 'El reporte se ha iniciado correctamente'
     
     def report_cancel(self, report):
 
@@ -59,21 +65,21 @@ class ReportController:
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 'El reporte se ha rechazado correctamente', 200
+        return 'Ok', 200, 'El reporte se ha rechazado correctamente'
 
     def report_finish(self, report):
 
         report = Report.query.filter_by(uid=report).first()
 
         if not report:
-            return 'Error', 'El reporte no se ha encontrado', 404
+            return 'Error', 404, 'El reporte no se ha encontrado'
 
         report.status =  ReportStatus.RESOLVED
 
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 'El reporte se ha finalizado correctamente', 200
+        return 'Ok', 200, 'El reporte se ha finalizado correctamente'
 
     
     

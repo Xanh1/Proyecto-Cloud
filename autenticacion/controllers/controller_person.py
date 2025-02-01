@@ -32,7 +32,7 @@ class PersonaControl():
         else:
             
             persona = Person()
-            persona.uid = uuid.uuid4()
+            persona.uid = str(uuid.uuid4())
             persona.name = data['name'] 
             if (data['rol'] == 'municipal'):
                 persona.rol = 'municipal'

@@ -15,14 +15,12 @@ def create():
 
     json = request.json
     
-    msg, context, code = report_controller.create(data = json)
+    msg, code, context = report_controller.create(data = json)
 
     return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
 
 @report_url.route('/report/all/<uid>', methods = ['GET'])
 def reports_by_user(uid):
-    
-    json = request.json
     
     msg, code, context  = report_controller.get_reports_by_user(uid)
     
@@ -41,7 +39,7 @@ def start_status_report():
 
     report = request.json['report']
     
-    msg, context, code = report_controller.start_report(report)
+    msg, code, context = report_controller.start_report(report)
 
     return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
 
@@ -51,7 +49,7 @@ def cancel_status_report():
 
     report = request.json['report']
     
-    msg, context, code = report_controller.report_cancel(report)
+    msg, code, context = report_controller.report_cancel(report)
 
     return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
 
@@ -61,6 +59,6 @@ def finsih_status_report():
 
     report = request.json['report']
     
-    msg, context, code = report_controller.report_finish(report)
+    msg, code, context = report_controller.report_finish(report)
 
     return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)

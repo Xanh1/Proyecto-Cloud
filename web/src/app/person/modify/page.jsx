@@ -8,13 +8,10 @@ import swal from "sweetalert";
 import { modify_person, search_person } from "../../../hooks/service_person";
 import Cookies from "js-cookie";
 
-import UserSidebar from "../../../components/UserSidebar";
-import HeaderMenu from "../../../components/HeaderMenu";
-
 import { useState } from "react";
+import HeaderAccount from "@/components/HeaderAccount";
 
 export default function modifyPerson() {
-
   const token = Cookies.get("token");
   const uid = Cookies.get("necesary");
 
@@ -99,189 +96,186 @@ export default function modifyPerson() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <HeaderMenu />
-      <main className="flex flex-1">
-        <UserSidebar />
-        <div className="flex-1 py-6 sm:ml-64">
-          <div className="py-4 rounded-lg mt-14">
-            <h1 className="px-12 font-semilbold text-2xl text-left">
-              Actualizar Cuenta
-            </h1>
-            <form
-              className="my-8 flex flex-col justify-center items-center"
-              onSubmit={handleSubmit(enviar_data)}
-            >
-              <div className="flex flex-col">
-                <h1 className="font-semibold text-sm my-4">Personal info</h1>
-                <div className="flex gap-4">
-                  <div className="max-w-sm my-3">
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Nombre
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      id="name"
-                      defaultValue={person && person.name}
-                      {...register("name")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.name?.message}
-                    </span>
-                  </div>
-
-                  <div className="max-w-sm my-3">
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Apellido
-                    </label>
-                    <input
-                      type="text"
-                      name="email"
-                      id="email"
-                      defaultValue={person && person.last_name}
-                      {...register("last_name")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.last_name?.message}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-full my-2">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium mb-2"
-                  >
-                    Dni
-                  </label>
-                  <input
-                    type="text"
-                    name="dni"
-                    id="dni"
-                    defaultValue={person && person.dni}
-                    {...register("dni")}
-                    className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-gray-100"
-                    readOnly
-                  />
-                  <span className="block text-red-500 text-xs pl-1 min-h-5">
-                    {errors.dni?.message}
-                  </span>
-                </div>
-
-                <div className="flex flex-col">
-                  <h1 className="font-semibold text-sm my-4">Información de la Cuenta</h1>
-
-                  <div className="w-full my-2">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Correo
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      id="email"
-                      defaultValue={person && person.email}
-                      {...register("email")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.email?.message}
-                    </span>
-                  </div>
-
-                  <div className="w-full my-2">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Contraseña Anterior
-                    </label>
-                    <input
-                      type="password"
-                      name="old_password"
-                      id="password"
-                      {...register("old_password")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.old_password?.message}
-                    </span>
-                  </div>
-
-                  <div className="w-full my-2">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Nueva Contraseña
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      {...register("password")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.password?.message}
-                    </span>
-                  </div>
-
-                  <div className="w-full my-2">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium mb-2"
-                    >
-                      Confirmar Contraseña
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      {...register("confirm_password")}
-                      className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-                    />
-                    <span className="block text-red-500 text-xs pl-1 min-h-5">
-                      {errors.confirm_password?.message}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="my-4 flex justify-between">
-                {" "}
-                {/* Changed to flex justify-between for left and right alignment */}
-                <button
-                  type="button"
-                  onClick={cancelar}
-                  className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2"
+    <div className="min-h-screen flex flex-col items-center bg-white text-black">
+      <HeaderAccount />
+      <main className="flex-1 w-full px-6 py-10">
+        <h1 className="font-semibold text-2xl text-center">
+          Actualizar Cuenta
+        </h1>
+        <form
+          className="my-8 flex flex-col justify-center items-center"
+          onSubmit={handleSubmit(enviar_data)}
+        >
+          <div className="flex flex-col">
+            <h1 className="font-semibold text-sm my-4">Personal info</h1>
+            <div className="flex gap-4">
+              <div className="max-w-sm my-3">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-2"
                 >
-                  <span className="w-56 h-48 rounded bg-red-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
-                  <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
-                    Cancelar
-                  </span>
-                </button>
-                <button className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2 ml-4">
-                  <span className="w-56 h-48 rounded bg-blue-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
-                  <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
-                    Actualizar
-                  </span>
-                </button>
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  defaultValue={person && person.name}
+                  {...register("name")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.name?.message}
+                </span>
               </div>
-            </form>
+
+              <div className="max-w-sm my-3">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Apellido
+                </label>
+                <input
+                  type="text"
+                  name="email"
+                  id="email"
+                  defaultValue={person && person.last_name}
+                  {...register("last_name")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.last_name?.message}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full my-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium mb-2"
+              >
+                Dni
+              </label>
+              <input
+                type="text"
+                name="dni"
+                id="dni"
+                defaultValue={person && person.dni}
+                {...register("dni")}
+                className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-gray-100"
+                readOnly
+              />
+              <span className="block text-red-500 text-xs pl-1 min-h-5">
+                {errors.dni?.message}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <h1 className="font-semibold text-sm my-4">
+                Información de la Cuenta
+              </h1>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Correo
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  defaultValue={person && person.email}
+                  {...register("email")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.email?.message}
+                </span>
+              </div>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Contraseña Anterior
+                </label>
+                <input
+                  type="password"
+                  name="old_password"
+                  id="password"
+                  {...register("old_password")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.old_password?.message}
+                </span>
+              </div>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Nueva Contraseña
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  {...register("password")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.password?.message}
+                </span>
+              </div>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Confirmar Contraseña
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  {...register("confirm_password")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.confirm_password?.message}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <div className="my-4 flex justify-between">
+            {" "}
+            {/* Changed to flex justify-between for left and right alignment */}
+            <button
+              type="button"
+              onClick={cancelar}
+              className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2"
+            >
+              <span className="w-56 h-48 rounded bg-red-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
+              <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
+                Cancelar
+              </span>
+            </button>
+            <button className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2 ml-4">
+              <span className="w-56 h-48 rounded bg-blue-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
+              <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
+                Actualizar
+              </span>
+            </button>
+          </div>
+        </form>
       </main>
     </div>
   );

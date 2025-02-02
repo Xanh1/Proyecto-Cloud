@@ -27,7 +27,7 @@ class ReportController:
         
         reports = Report.query.filter_by(user_uid=user).all()
         
-        reports_serialized = [r.serialize for r in reports]
+        reports_serialized = [{"id": r.id, **r.serialize} for r in reports]
         
         return 'Ok', 200, reports_serialized
     
@@ -51,7 +51,12 @@ class ReportController:
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 200, 'El reporte se ha iniciado correctamente'
+        context = {
+            'msg': 'Se ha cambiado el estado del reporte a IN_PROGRESS',
+            'reporte': report.id
+        }
+
+        return 'Ok', 200,context
     
     def report_cancel(self, report):
 
@@ -65,7 +70,12 @@ class ReportController:
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 200, 'El reporte se ha rechazado correctamente'
+        context = {
+            'msg': 'Se ha cambiado el estado del reporte a CLOSED',
+            'reporte': report.id
+        }
+
+        return 'Ok', 200,context
 
     def report_finish(self, report):
 
@@ -79,7 +89,11 @@ class ReportController:
         DB.session.add(report)
         DB.session.commit()
 
-        return 'Ok', 200, 'El reporte se ha finalizado correctamente'
+        context = {
+            'msg': 'Se ha cambiado el estado del reporte a Finalizado',
+            'reporte': report.id
+        }
 
+        return 'Ok', 200,context
     
     

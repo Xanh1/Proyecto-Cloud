@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import swal from "sweetalert";
 
 import { useRouter } from "next/navigation";
-import UserSidebar from "../../components/UserSidebar";
+import HeaderAccount from "@/components/HeaderAccount";
 
 export default function Person() {
   const router = useRouter();
@@ -88,88 +88,78 @@ export default function Person() {
   };
 
   return (
-    <div className="h-screen flex">
+    <div className="min-h-screen flex flex-col items-center bg-white text-black">
+      <HeaderAccount />
+      <main className="flex-1 w-full px-6 py-10">
+        <div className="flex justify-between">
+          <h1 className="font-semibold text-2xl">Cuentas</h1>
+          <Link
+            href="/person/municipalNew"
+            className="py-1 px-3 rounded-lg bg-black text-white text-sm content-center"
+          >
+            Agregar Cuenta
+          </Link>
+        </div>
 
-      <main className="flex-1 flex">
-        <UserSidebar />
-        <div className="flex-1 py-6 sm:ml-64">
-          <div className="py-4 px-10 rounded-lg mt-14">
+        <div className="my-8">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Nro
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Dni
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Nombre
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Apellido
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Correo
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Creado en
+                </th>
+                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                  Estado
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {persons &&
+                persons.map((person, index) => (
+                  <tr key={index}>
+                    <td className="p-3 text-sm text-gray-700 ">{index + 1}</td>
 
-            <div className="flex justify-between">
-              <h1 className="font-semibold text-2xl">Cuentas</h1>
-              <Link
-                href="/person/new"
-                className="py-1 px-3 rounded-lg bg-blue-500 text-white text-sm content-center"
-              >
-                Agregar Cuenta
-              </Link>
-            </div>
-
-            <div className="my-8">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Nro
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Dni
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Nombre
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Apellido
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Correo
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Creado en
-                    </th>
-                    <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                      Estado
-                    </th>
+                    <td className="p-3 text-sm text-gray-700 ">{person.dni}</td>
+                    <td className="p-3 text-sm text-gray-700 ">
+                      {person.name}
+                    </td>
+                    <td className="p-3 text-sm text-gray-700 ">
+                      {person.last_name}
+                    </td>
+                    <td className="p-3 text-sm text-gray-700 ">
+                      {person.email}
+                    </td>
+                    <td className="p-3 text-sm text-gray-700 ">
+                      {format_fecha(person.created_at)}
+                    </td>
+                    <td className="p-3 text-sm text-gray-700 pl-8">
+                      <input
+                        type="checkbox"
+                        checked={person.status}
+                        onChange={(e) =>
+                          handleStatusChange(person.uid, e.target.checked)
+                        }
+                      />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {persons &&
-                    persons.map((person, index) => (
-                      <tr key={index}>
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {index + 1}
-                        </td>
-
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {person.dni}
-                        </td>
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {person.name}
-                        </td>
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {person.last_name}
-                        </td>
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {person.email}
-                        </td>
-                        <td className="p-3 text-sm text-gray-700 ">
-                          {format_fecha(person.created_at)}
-                        </td>
-                        <td className="p-3 text-sm text-gray-700 pl-8">
-                          <input
-                            type="checkbox"
-                            checked={person.status}
-                            onChange={(e) =>
-                              handleStatusChange(person.uid, e.target.checked)
-                            }
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>

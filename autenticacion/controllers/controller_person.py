@@ -161,7 +161,8 @@ class PersonaControl():
             'token': token,
             'code': 200,
             'person': person.name + " " + person.last_name,
-            'necesary': person.uid
+            'necesary': person.uid,
+            'id_person' : person.id,
         }
         return jsonify(response_data), 200
 

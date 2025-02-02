@@ -33,10 +33,14 @@ export default function login() {
 
   const req = (data) => {
     authPerson(data).then((info) => {
+      console.log('holaaa');
+      console.log(info)
       if (info.code == 200) {
+        console.log('datos del usuario: ', info.person);
         Cookies.set("token", info.token);
         Cookies.set("usuario", info.person);
         Cookies.set("necesary", info.necesary);
+        Cookies.set('id_person', info.id_person);
         swal({
           title: "Acción Satisfactoria",
           text: "Bienvenido " + info.person.replace(".", " "),
@@ -48,7 +52,7 @@ export default function login() {
         router.push("/person");
         router.refresh();
       } else {
-        
+        console.log(info.response);
         swal({
           title: "Error iniciando sesión",
           text: info.response.data.datos.error,

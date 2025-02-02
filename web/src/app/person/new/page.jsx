@@ -30,7 +30,7 @@ export default function newPerson() {
         "Ingrese un correo válido (@unl.edu.ec o gmail.com)"
       ),
     password: yup.string().required("Campos obligatorios"),
-    rol: yup.string().default("cliente"),
+    rol: yup.string().default("ciudadano"),
   });
 
   //validar formulario

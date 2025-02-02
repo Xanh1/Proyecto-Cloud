@@ -21,7 +21,7 @@ class Report(DB.Model):
     subject     = DB.Column(DB.String(255), nullable=False)
     description = DB.Column(DB.Text, nullable=False)
     status      = DB.Column(DB.Enum(ReportStatus), nullable=False, default=ReportStatus.PENDING)
-    user_id     = DB.Column(DB.Integer, nullable=False)
+    user_uid    = DB.Column(DB.String(60), nullable=False)
     
     # audit fields
     created_at = DB.Column(DB.DateTime, default=datetime.now)

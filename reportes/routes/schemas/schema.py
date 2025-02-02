@@ -3,7 +3,7 @@ create_report = {
     'properties': {
         'subject': {'type': 'string'},
         'description': {'type': 'string'},
-        'user': {'type': 'integer'},
+        'user': {'type': 'string'},
     },
     'required': ['subject', 'description', 'user']
 }

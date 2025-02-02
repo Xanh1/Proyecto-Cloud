@@ -164,3 +164,35 @@ class PersonaControl():
             'necesary': person.uid
         }
         return jsonify(response_data), 200
+
+
+    def login_app_movil(self, values):
+        person = Person.query.filter_by(email=values['email']).first()
+
+        if not person:
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
+
+        if person.password != values['password']:
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
+
+        if person.rol == 'municipal':
+            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-17)]}}), 400
+
+        token = jwt.encode(
+            {
+                'uid': person.uid,
+                'exp': datetime.utcnow() + timedelta(minutes=20)
+            },
+            key=current_app.config['SECRET_KEY'],
+            algorithm='HS512',
+        )
+
+        # Respuesta exitosa
+        response_data = {
+            'token': token,
+            'code': 200,
+            'person': person.name + " " + person.last_name,
+            'necesary': person.uid
+        }
+        
+        return jsonify(response_data), 200

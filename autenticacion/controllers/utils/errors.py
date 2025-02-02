@@ -10,4 +10,5 @@ class Errors:
         '-11': "Usuario o contraseña incorrecta",
         '-15' : 'Acceso no autorizado. Para acceder al servicio de reporte de incidentes, inicie sesión en la aplicación móvil.',
         '-16' :  'Rol no válido',
+        "-17": 'Acceso no autorizado, Para la gestion de reporte de incidentes, inicie sessión en la web'
     }

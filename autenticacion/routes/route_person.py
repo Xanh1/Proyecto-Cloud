@@ -133,4 +133,14 @@ def login():
     response = personaC.loginAppWeb(values = values)
 
     return make_response(response)
+
+@api_persona.route('/users/login/app', methods = ['POST'])
+@expects_json(schema_login)
+def login_app():
+
+    values = request.json
+
+    response = personaC.login_app_movil(values = values)
+
+    return make_response(response)
     

@@ -10,7 +10,7 @@ class ReportController:
         
         report.uid = str(uuid.uuid4())
         report.subject = data['subject']
-        report.user_id = data['user']
+        report.user_uid = data['user']
         report.description = data['description']
 
         DB.session.add(report)
@@ -25,7 +25,7 @@ class ReportController:
 
     def get_reports_by_user(self, user):
         
-        reports = Report.query.filter_by(user_id=user).all()
+        reports = Report.query.filter_by(user_uid=user).all()
         
         reports_serialized = [r.serialize for r in reports]
         

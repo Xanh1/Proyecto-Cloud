@@ -27,7 +27,7 @@ class ReportController:
         
         reports = Report.query.filter_by(user_id=user).all()
         
-        reports_serialized = [r.serialize for r in reports]
+        reports_serialized = [{"id": r.id, **r.serialize} for r in reports]
         
         return 'Ok', 200, reports_serialized
     

@@ -11,11 +11,13 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "axios": "^1.7.9",
+    "cors": "^2.8.5",
     "js-cookie": "^3.0.5",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
+    "socket.io-client": "^4.8.1",
     "sweetalert": "^2.1.2",
     "yup": "^1.6.1"
   },

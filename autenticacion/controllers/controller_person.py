@@ -32,12 +32,12 @@ class PersonaControl():
         else:
             
             persona = Person()
-            persona.uid = uuid.uuid4()
+            persona.uid = str(uuid.uuid4())
             persona.name = data['name'] 
             if (data['rol'] == 'municipal'):
                 persona.rol = 'municipal'
-            elif (data['rol'] == 'municipal'):
-                persona.rol = 'municipal'
+            elif (data['rol'] == 'ciudadano'):
+                persona.rol = 'ciudadano'
             else:
                 return -16
             persona.dni = data['dni']
@@ -144,7 +144,7 @@ class PersonaControl():
         if person.password != values['password']:
             return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
 
-        if person.rol == 'ciudadano':
+        if person.rol != 'municipal':
             return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-15)]}}), 400
 
         token = jwt.encode(

@@ -1,3 +1,4 @@
 virtual/
 venv/
 __pycache__/
+users.sqlite3

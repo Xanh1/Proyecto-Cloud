@@ -8,49 +8,58 @@ const pool = require('../config/database/db');  // ✅ Importar la conexión a l
 
 exports.crearNotificacion = async (req, res) => {
     try {
-        const data = req.body;  // Datos enviados para crear el reporte
+        const { uid, estado, subject, description, ...data } = req.body;  
 
-        // Mostrar los datos que se están enviando a Flask
-        console.log('Datos que se están enviando a Flask:', data);
-
-        // Paso 1: Llamar al servicio de reportes en Flask para crear el reporte
-        const response = await axios.post('http://127.0.0.1:5001/create', data);
-        console.log('Respuesta de Flask:', response.data);
-
-        // Verificar si la respuesta contiene el report_id
-        const report_id = response.data.context?.reporte;
-        if (!report_id) {
-            throw new Error('No se obtuvo un report_id de Flask');
+        // Validación: asegurar que los datos obligatorios están presentes
+        if (!uid || !estado || !subject || !description) {
+            return api_validator.errorServer(req, res, null, 'Faltan datos obligatorios (uid, estado, subject, description)');
         }
 
-        // Paso 2: Crear la notificación para el usuario que creó el reporte
-        const notificacionDataUsuario = {
-            titulo: "Nuevo reporte creado",
-            mensaje: `Revisa los detalles del reporte ${report_id}`,
-            usuario_id: data.user,  // ID del usuario que creó el reporte (mismo que en Flask)
-            reporte_id: report_id,   // El mismo report_id recibido de Flask
-            estado: data.estado
-        };
+        // Agregar el usuario al objeto `data` antes de enviarlo a Flask
+        const requestData = { ...data, user: uid, subject, description };  
 
-        // Crear la notificación para el usuario que creó el reporte
-        await Notificacion.crearNotificacionService(notificacionDataUsuario);
+        console.log('Datos que se están enviando a Flask:', requestData);
 
-        // Paso 3: Crear la notificación para los municipales (si no es necesario buscar, podemos omitir la consulta)
-        // Si no necesitas buscar los municipales, crea la notificación generica
-        const notificacionDataMunicipales = {
-            titulo: "Nuevo reporte creado",
-            mensaje: `Un nuevo reporte ha sido creado. Revisa los detalles: ${report_id}`,
-            reporte_id: report_id,
-            estado: data.estado  // Usar el estado de la notificación
-        };
+        // Paso 1: Llamar al servicio de reportes en Flask
+        const response = await axios.post('http://127.0.0.1:5001/create', requestData);
+        console.log('Respuesta de Flask:', response.data);
 
-        // Crear la notificación para los municipales (si se deben notificar de alguna manera)
-        await Notificacion.crearNotificacionService(notificacionDataMunicipales);
+        // Validar si Flask respondió correctamente y obtener el `reporte_id`
+        let report_id = response.data?.context?.reporte;  // Flask devuelve un número en `reporte`
+        
+        // Asegurar que `reporte_id` es un número válido
+        if (!report_id || isNaN(report_id)) {
+            throw new Error('No se obtuvo un reporte_id válido de Flask');
+        }
+
+        // Convertir `report_id` a entero por seguridad
+        report_id = parseInt(report_id, 10);
+
+        // Paso 2: Crear notificaciones en paralelo con `reporte_id`
+        const notificaciones = [
+            {
+                titulo: `Nuevo reporte: ${subject}`,  // Ahora el título incluye el subject
+                mensaje: `Revisa los detalles del reporte ${report_id}`,
+                uid,  
+                reporte_id: report_id,  
+                estado
+            },
+            {
+                titulo: `Nuevo reporte: ${subject}`,  // Asegurar que subject está en el título
+                mensaje: `Un nuevo reporte ha sido creado.`,
+                reporte_id: report_id,  
+                estado
+            }
+        ];
+
+        await Promise.all(
+            notificaciones.map(notificacion => Notificacion.crearNotificacionService(notificacion))
+        );
 
         // Respuesta de éxito
         api_validator.successServer(req, res, null, 'Notificaciones creadas correctamente');
     } catch (error) {
-        console.error('Error en la solicitud o en la creación de notificaciones:', error);
+        console.error('Error en la creación de notificaciones:', error.message);
         api_validator.errorServer(req, res, error, 'Error al crear las notificaciones');
     }
 };
@@ -81,7 +90,7 @@ exports.startReporte = async (req, res) => {
             // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
                 titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte con ID ${report_uuid} ha cambiado su estado a 'IN_PROGRESS'.`,
+                mensaje: `El reporte ha cambiado su estado a 'IN_PROGRESS'.`,
                 reporte_id: report_id,  // Usar el report_id correcto
                 estado: 'IN_PROGRESS'
             };
@@ -128,7 +137,7 @@ exports.cancelReporte = async (req, res) => {
             // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
                 titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte con ID ${report_uuid} ha cambiado su estado a 'CLOSED'.`,
+                mensaje: `El reporte ha cambiado su estado a 'CLOSED'.`,
                 reporte_id: report_id,  // Usar el report_id correcto
                 estado: 'CLOSED'
             };
@@ -174,7 +183,7 @@ exports.finishReporte = async (req, res) => {
             // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
                 titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte con ID ${report_uuid} ha cambiado su estado a 'RESOLVED'.`,
+                mensaje: `El reporte ha cambiado su estado a 'RESOLVED'.`,
                 reporte_id: report_id,  // Usar el report_id correcto
                 estado: 'RESOLVED'
             };

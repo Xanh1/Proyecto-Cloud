@@ -17,7 +17,7 @@ export async function list_reports(token) {
 export async function changeStatusInProgress(data, token){
     let datos = null;
     try{
-        datos = await POST_RP('report/start', data, token);
+        datos = await POST_RP('notificaciones/estadoenprogreso', data, token);
     }
     catch(error){
         return error;
@@ -27,7 +27,7 @@ export async function changeStatusInProgress(data, token){
 export async function changeStatusCancel(data, token){
     let datos = null;
     try{
-        datos = await POST_RP('report/cancel', data, token);
+        datos = await POST_RP('notificaciones/estadocancelado', data, token);
     }
     catch(error){
         return error;
@@ -37,7 +37,7 @@ export async function changeStatusCancel(data, token){
 export async function changeStatusFinish(data, token){
     let datos = null;
     try{
-        datos = await POST_RP('report/finish', data, token);
+        datos = await POST_RP('notificaciones/estadofinalizar', data, token);
     }
     catch(error){
         return error;

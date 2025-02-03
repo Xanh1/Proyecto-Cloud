@@ -1,5 +1,6 @@
 const URL_ACCOUNT = process.env.API_ACCOUNT_SERVICE;
 const URL_REPORT = process.env.API_REPORT_SERVICE;
+const URL_NOTIFICATION = process.env.API_NOTIFICATION;
 
 import axios from 'axios';
 
@@ -58,7 +59,7 @@ export const POST_RP = async (resource, data, token = "NONE") => {
         }
     }
 
-    return await axios.post(URL_REPORT + resource, data, headers)
+    return await axios.post(URL_NOTIFICATION + resource, data, headers)
 }
 
 // Metodo GET
@@ -111,4 +112,20 @@ export const GET_RP = async (resource, token = "NONE") => {
         }
     }
     return await axios.get(URL_REPORT + resource, headers);
+}
+export const GET_NOTIFIMUNI = async (resource, token = "NONE") => {
+    let headers = {
+        headers: {
+            "Accept": "application/json",
+        }
+    }
+    if (token != "NONE") {
+        headers = {
+            headers: {
+                "Accept": "application/json",
+                "X-Access-Token": token,
+            }
+        }
+    }
+    return await axios.get(URL_NOTIFICATION + resource, headers);
 }

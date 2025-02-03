@@ -1,27 +1,23 @@
-import { useEffect, useState } from "react";
-import { fetchNotifications } from "../api/notifications";
+import {GET_AC, GET_NOTIFIMUNI, POST_AC} from "./Connection";
 
-export default function Notifications({ userId }) {
-    const [notifications, setNotifications] = useState([]);
+export async function list_notificacionmuni(token) {
+    let datos = null;
+    try{
+        datos = await GET_NOTIFIMUNI('notificaciones/all', token);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
+}
 
-    useEffect(() => {
-        async function loadNotifications() {
-            const data = await fetchNotifications(userId);
-            setNotifications(data);
-        }
-        loadNotifications();
-    }, [userId]);
-
-    return (
-        <div>
-            <h2>Notificaciones</h2>
-            <ul>
-                {notifications.map((notification) => (
-                    <li key={notification.id}>
-                        <strong>{notification.title}:</strong> {notification.message}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
+export async function list_notificacioncuidano(token) {
+    let datos = null;
+    try{
+        datos = await GET_NOTIFIMUNI('notificaciones/all', token);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
 }

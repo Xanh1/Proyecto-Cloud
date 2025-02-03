@@ -163,6 +163,7 @@ class PersonaControl():
             'person': person.name + " " + person.last_name,
             'necesary': person.uid,
             'id_person' : person.id,
+            'rol' : person.rol,
         }
         return jsonify(response_data), 200
 

@@ -41,6 +41,7 @@ export default function login() {
         Cookies.set("usuario", info.person);
         Cookies.set("necesary", info.necesary);
         Cookies.set('id_person', info.id_person);
+        Cookies.set('rol', info.rol);
         swal({
           title: "Acción Satisfactoria",
           text: "Bienvenido " + info.person.replace(".", " "),

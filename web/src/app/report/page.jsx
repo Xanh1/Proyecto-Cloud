@@ -71,97 +71,129 @@ export default function Report() {
   }
 
   const handleStatusChangeToProgress = async (report_uid) => {
-    const data = { report: report_uid };
-
-    changeStatusInProgress(data, token).then((info) => {
-      if (info.code === 200) {
+    const data = { report_uuid: report_uid };
+  
+    try {
+      const response = await changeStatusInProgress(data, token);
+  
+      // Verifica si el tipo de respuesta es "Success"
+      if (response.tipo === "Success") {
         swal({
           title: "Acción Satisfactoria",
-          text: "El reporte esta en progreso",
+          text: "El reporte está en progreso",
           icon: "success",
-          button: "Accept",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        swal({
-          title: "Error",
-          text: info.response.request.statusText,
-          icon: "error",
           button: "Aceptar",
           timer: 8000,
           closeOnEsc: true,
         }).then(() => {
           window.location.reload();
         });
-        console.log("No se pudo actualizar");
-      }
-    });
-  };
-
-  const handleStatusChangeToCancel = async (report_uid) => {
-    const data = { report: report_uid };
-
-    changeStatusCancel(data, token).then((info) => {
-      if (info.code === 200) {
-        swal({
-          title: "Acción Satisfactoria",
-          text: "El reporte ha sido cancelado",
-          icon: "success",
-          button: "Accept",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
       } else {
+        // Manejo de error según la estructura de respuesta
         swal({
           title: "Error",
-          text: info.response.request.statusText,
+          text: response.mensaje || "No se pudo actualizar el estado",
           icon: "error",
           button: "Aceptar",
           timer: 8000,
           closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
         });
         console.log("No se pudo actualizar");
       }
-    });
+    } catch (error) {
+      // Manejo de errores de red o internos
+      swal({
+        title: "Error",
+        text: error.message || "Ocurrió un problema al actualizar el estado",
+        icon: "error",
+        button: "Aceptar",
+        timer: 8000,
+        closeOnEsc: true,
+      });
+      console.error("Error:", error);
+    }
   };
+  
 
-  const handleStatusChangeToFinish = async (report_uid) => {
-    const data = { report: report_uid };
-
-    changeStatusFinish(data, token).then((info) => {
-      if (info.code === 200) {
-        swal({
-          title: "Acción Satisfactoria",
-          text: "El reporte ha finalizado",
-          icon: "success",
-          button: "Accept",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
+  const handleStatusChangeToCancel = async (report_uid, token) => {
+    if (!report_uid) {
+      showErrorAlert("ID de reporte inválido");
+      return;
+    }
+  
+    const data = { report_uuid: report_uid }; // Verifica que este sea el nombre correcto
+  
+    try {
+      console.log("Enviando petición para cancelar:", data);
+      const response = await changeStatusCancel(data, token);
+      
+      console.log("Respuesta de la API:", response); // Verifica la estructura de la respuesta
+  
+      if (response.tipo === "Success") {
+        showSuccessAlert("El reporte ha sido cancelado", true);
       } else {
-        swal({
-          title: "Error",
-          text: info.response.request.statusText,
-          icon: "error",
-          button: "Aceptar",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
-        console.log("No se pudo actualizar");
+        showErrorAlert(response.mensaje || "No se pudo cancelar el reporte");
+      }
+    } catch (error) {
+      showErrorAlert(error.message || "Ocurrió un problema al cancelar el reporte");
+      console.error("Error en la cancelación:", error);
+    }
+  };
+  
+  const handleStatusChangeToFinish = async (report_uid, token) => {
+    if (!report_uid) {
+      showErrorAlert("ID de reporte inválido");
+      return;
+    }
+  
+    const data = { report_uuid: report_uid }; // Verifica que este sea el nombre correcto
+  
+    try {
+      console.log("Enviando petición para finalizar:", data);
+      const response = await changeStatusFinish(data, token);
+  
+      console.log("Respuesta de la API:", response); // Verifica la estructura de la respuesta
+  
+      if (response.tipo === "Success") {
+        showSuccessAlert("El reporte ha sido finalizado", true);
+      } else {
+        showErrorAlert(response.mensaje || "No se pudo finalizar el reporte");
+      }
+    } catch (error) {
+      showErrorAlert(error.message || "Ocurrió un problema al finalizar el reporte");
+      console.error("Error al finalizar:", error);
+    }
+  };
+  
+  // Función para mostrar alertas de éxito
+  const showSuccessAlert = (message, reload = false) => {
+    swal({
+      title: "Acción Satisfactoria",
+      text: message,
+      icon: "success",
+      button: "Aceptar",
+      timer: 8000,
+      closeOnEsc: true,
+    }).then(() => {
+      if (reload) {
+        window.location.reload();
       }
     });
   };
+  
+  // Función para mostrar alertas de error
+  const showErrorAlert = (message) => {
+    swal({
+      title: "Error",
+      text: message,
+      icon: "error",
+      button: "Aceptar",
+      timer: 8000,
+      closeOnEsc: true,
+    });
+  };
+  
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-white text-black">

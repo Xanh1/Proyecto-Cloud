@@ -68,40 +68,30 @@ exports.startReporte = async (req, res) => {
     try {
         const { report_uuid } = req.body;  // Recibimos el UUID del reporte
 
-        // Verificamos si el UUID está presente
         if (!report_uuid) {
             return res.status(400).json({ msg: 'El UUID del reporte es obligatorio' });
         }
 
-        // Paso 1: Llamar a la API de Flask para actualizar el estado a IN_PROGRESS
         const response = await axios.post('http://127.0.0.1:5001/report/start', { report: report_uuid });
 
-        // Verificar si la respuesta de Flask es correcta
         if (response.status === 200) {
             console.log('Respuesta de Flask:', response.data);
-
-            // Aquí accedemos a 'reporte' en lugar de 'context' para obtener el report_id
-            const report_id = response.data.context?.reporte;  // `reporte` contiene el `report_id`
+            const report_id = response.data.context?.reporte;
 
             if (!report_id || isNaN(report_id)) {
                 throw new Error('No se recibió un report_id válido desde Flask');
             }
 
-            // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
                 titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte ha cambiado su estado a 'IN_PROGRESS'.`,
-                reporte_id: report_id,  // Usar el report_id correcto
+                mensaje: `El reporte Nro: ${report_id} ha cambiado su estado a 'IN_PROGRESS'.`,
+                reporte_id: report_id,
                 estado: 'IN_PROGRESS'
             };
 
-            // Crear la notificación
             await Notificacion.crearNotificacionService(notificacionData);
-
-            // Respuesta exitosa
-            api_validator.successServer(req, res, null, 'Notificación de cambio de estado creada correctamente');
+            api_validator.successServer(req, res, null, `Notificación de cambio de estado creada correctamente para el reporte ID: ${report_id}`);
         } else {
-            // Si la respuesta de Flask no es exitosa
             throw new Error('Error en la respuesta de Flask');
         }
     } catch (error) {
@@ -110,45 +100,34 @@ exports.startReporte = async (req, res) => {
     }
 };
 
-
 exports.cancelReporte = async (req, res) => {
     try {
-        const { report_uuid } = req.body;  // Recibimos el UUID del reporte
+        const { report_uuid } = req.body;
 
-        // Verificamos si el UUID está presente
         if (!report_uuid) {
             return res.status(400).json({ msg: 'El UUID del reporte es obligatorio' });
         }
 
-        // Paso 1: Llamar a la API de Flask para actualizar el estado a CANCEL
         const response = await axios.post('http://127.0.0.1:5001/report/cancel', { report: report_uuid });
 
-        // Verificar si la respuesta de Flask es correcta
         if (response.status === 200) {
             console.log('Respuesta de Flask:', response.data);
-
-            // Aquí accedemos a 'reporte' en lugar de 'context' para obtener el report_id
-            const report_id = response.data.context?.reporte;  // `reporte` contiene el `report_id`
+            const report_id = response.data.context?.reporte;
 
             if (!report_id || isNaN(report_id)) {
                 throw new Error('No se recibió un report_id válido desde Flask');
             }
 
-            // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
-                titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte ha cambiado su estado a 'CLOSED'.`,
-                reporte_id: report_id,  // Usar el report_id correcto
+                titulo: 'El reporte ha sido cancelado',
+                mensaje: `El reporte Nro: ${report_id} ha cambiado su estado a 'CLOSED'.`,
+                reporte_id: report_id,
                 estado: 'CLOSED'
             };
 
-            // Crear la notificación
             await Notificacion.crearNotificacionService(notificacionData);
-
-            // Respuesta exitosa
-            api_validator.successServer(req, res, null, 'Notificación de cambio de estado creada correctamente');
+            api_validator.successServer(req, res, null, `Notificación de cambio de estado creada correctamente para el reporte ID: ${report_id}`);
         } else {
-            // Si la respuesta de Flask no es exitosa
             throw new Error('Error en la respuesta de Flask');
         }
     } catch (error) {
@@ -159,42 +138,32 @@ exports.cancelReporte = async (req, res) => {
 
 exports.finishReporte = async (req, res) => {
     try {
-        const { report_uuid } = req.body;  // Recibimos el UUID del reporte
+        const { report_uuid } = req.body;
 
-        // Verificamos si el UUID está presente
         if (!report_uuid) {
             return res.status(400).json({ msg: 'El UUID del reporte es obligatorio' });
         }
 
-        // Paso 1: Llamar a la API de Flask para actualizar el estado a RESOLVED
         const response = await axios.post('http://127.0.0.1:5001/report/finish', { report: report_uuid });
 
-        // Verificar si la respuesta de Flask es correcta
         if (response.status === 200) {
             console.log('Respuesta de Flask:', response.data);
-
-            // Aquí accedemos a 'reporte' en lugar de 'context' para obtener el report_id
-            const report_id = response.data.context?.reporte;  // `reporte` contiene el `report_id`
+            const report_id = response.data.context?.reporte;
 
             if (!report_id || isNaN(report_id)) {
                 throw new Error('No se recibió un report_id válido desde Flask');
             }
 
-            // Paso 2: Crear la notificación después de cambiar el estado del reporte
             const notificacionData = {
-                titulo: 'El reporte ha comenzado',
-                mensaje: `El reporte ha cambiado su estado a 'RESOLVED'.`,
-                reporte_id: report_id,  // Usar el report_id correcto
+                titulo: 'El reporte ha sido resuelto',
+                mensaje: `El reporte Nro: ${report_id} ha cambiado su estado a 'RESOLVED'.`,
+                reporte_id: report_id,
                 estado: 'RESOLVED'
             };
 
-            // Crear la notificación
             await Notificacion.crearNotificacionService(notificacionData);
-
-            // Respuesta exitosa
-            api_validator.successServer(req, res, null, 'Notificación de cambio de estado creada correctamente');
+            api_validator.successServer(req, res, null, `Notificación de cambio de estado creada correctamente para el reporte ID: ${report_id}`);
         } else {
-            // Si la respuesta de Flask no es exitosa
             throw new Error('Error en la respuesta de Flask');
         }
     } catch (error) {
@@ -202,6 +171,7 @@ exports.finishReporte = async (req, res) => {
         api_validator.errorServer(req, res, error, 'Error al crear la notificación de cambio de estado');
     }
 };
+
 
 
 exports.getAllNotificacionesusuario = async (req, res) => {
@@ -215,7 +185,7 @@ exports.getAllNotificacionesusuario = async (req, res) => {
 
         console.log(`Haciendo petición a Flash: http://127.0.0.1:5001/report/all/${user_id}`);
 
-        // 1️⃣ Hacer una solicitud a la API de reportes en Flash para obtener todos los reportes del usuario
+        //  Hacer una solicitud a la API de reportes en Flash para obtener todos los reportes del usuario
         const reportesResponse = await axios.get(`http://127.0.0.1:5001/report/all/${user_id}`);
 
         console.log("Respuesta de la API de reportes:", reportesResponse.data);
@@ -224,23 +194,23 @@ exports.getAllNotificacionesusuario = async (req, res) => {
             return api_validator.successServer(req, res, [], 'No hay reportes para este usuario.');
         }
 
-        // 2️⃣ Obtener todos los IDs de reportes asociados al usuario
+        //  Obtener todos los IDs de reportes asociados al usuario
         const reporteIds = reportesResponse.data.context.map(r => r.id); // <-- Aquí usamos `r.id`, no `r.uid`
         console.log("IDs de reportes obtenidos:", reporteIds);
 
-        // 3️⃣ Si el usuario no tiene reportes, devolver lista vacía
+        //  Si el usuario no tiene reportes, devolver lista vacía
         if (reporteIds.length === 0) {
             return api_validator.successServer(req, res, [], 'No hay notificaciones para estos reportes.');
         }
 
-        // 4️⃣ Construir y ejecutar la consulta SQL para obtener TODAS las notificaciones de los reportes del usuario
+        // Construir y ejecutar la consulta SQL para obtener TODAS las notificaciones de los reportes del usuario
         const placeholders = reporteIds.map(() => '?').join(','); // (?, ?, ?)
-        const sql = `SELECT * FROM notificaciones WHERE reporte_id IN (${placeholders})`;
+        const sql = `SELECT * FROM notificaciones WHERE reporte_id IN (${placeholders}) ORDER BY id DESC`;
 
         const [notificaciones] = await pool.query(sql, reporteIds);
         console.log("Notificaciones encontradas:", JSON.stringify(notificaciones, null, 2));
 
-        // 5️⃣ Enviar respuesta con notificaciones
+        //  Enviar respuesta con notificaciones
         return api_validator.successServer(req, res, notificaciones, 'Notificaciones encontradas correctamente');
     } catch (error) {
         console.error("Error en la API de notificaciones:", error);
@@ -254,14 +224,17 @@ exports.getAllNotificacionesusuario = async (req, res) => {
 };
 
 
+
 exports.getAllNotificaciones = async (req, res) => {
     try {
-        const notificaciones = await Notificacion.getAllNotificacionesService();
+        let notificaciones = await Notificacion.getAllNotificacionesService();
+        notificaciones = notificaciones.reverse(); // Invertir el orden de las notificaciones
         api_validator.successServer(req, res, notificaciones, 'Notificaciones encontradas correctamente');
     } catch (error) {
-        api_validator.errorServer(req, res, 500,error);
+        api_validator.errorServer(req, res, 500, error);
     }
 };
+
 
 exports.getNotificacionById = async (req, res) => {
     try {

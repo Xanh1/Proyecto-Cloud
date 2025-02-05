@@ -144,8 +144,8 @@ class PersonaControl():
         if person.password != values['password']:
             return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-11)]}}), 400
 
-        if person.rol != 'municipal':
-            return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-15)]}}), 400
+       # if person.rol != 'municipal':
+        #    return jsonify({"msg": "ERROR", "code": 400, "datos": {"error": Errors.error[str(-15)]}}), 400
 
         token = jwt.encode(
             {
@@ -163,6 +163,7 @@ class PersonaControl():
             'person': person.name + " " + person.last_name,
             'necesary': person.uid,
             'id_person' : person.id,
+            'uid': person.uid,
             'rol' : person.rol,
         }
         return jsonify(response_data), 200
@@ -198,3 +199,13 @@ class PersonaControl():
         }
         
         return jsonify(response_data), 200
+
+    def getMunicipales(self):
+        personas = Person.query.filter_by(rol='municipal').all()
+
+        personas_serialized = [r.serialize for r in personas]
+
+        if not personas:
+            return -7
+        else:
+            return personas_serialized

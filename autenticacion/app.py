@@ -11,6 +11,8 @@ def create_app():
     app = Flask(__name__, instance_relative_config=False)
 
     #TODO
+        # Habilitar CORS para todas las rutas
+    CORS(app, supports_credentials=True)  # Asegurar que CORS esté activo
     
     app.config.from_object('config.config.Config')
     

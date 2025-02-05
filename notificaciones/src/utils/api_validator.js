@@ -9,7 +9,7 @@ exports.successServer = async function (req, res, data, mensaje) {
     res.status(200).json(json);
 }
 
-exports.errorServer = async function (req, res, status, error, mensaje) {
+exports.errorServer = async function (req, res, error, mensaje) {
     var json = {
         mensaje: mensaje ?? 'Error',
         tipo: 'Error',
@@ -17,7 +17,7 @@ exports.errorServer = async function (req, res, status, error, mensaje) {
         url: req.originalUrl,
     };
     await set_header(req, res, json);
-    res.status(status ?? 500 ).json(json);
+    res.status(500 ).json(json);
 }
 
 exports.validarCampos = function (list) {

@@ -1,12 +1,14 @@
 const pool = require('../config/database/db');
+const axios = require('axios');
+const API_URL_AUTH =  process.env.API_URL_AUTH;
 
 exports.crearNotificacionService = async (data) => {
   try {
     const sql = `
-      INSERT INTO notificaciones (titulo, mensaje, estado, reporte_id) 
-      VALUES (?, ?, ?, ?);
+      INSERT INTO notificaciones (titulo, mensaje, estado_reporte, reporte_id, user_uid, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
-    const [result] = await pool.query(sql, [data.titulo, data.mensaje, data.estado,data.reporte_id]);
+    const [result] = await pool.query(sql, [data.titulo, data.mensaje, data.estado,data.reporte_id, data.uid, data.created_at]);
     return result; 
   } catch (error) {
     throw new Error('Error creando notificación: ' + error.message);
@@ -23,11 +25,21 @@ exports.getAllNotificacionesService = async () => {
   }
 };
 
-exports.getNotificacionService = async (id) => {
+exports.getAllMunicipalesService = async () => {
   try {
-    const sql = 'SELECT * FROM notificaciones WHERE id = ?';
-    const [notificacion] = await pool.query(sql, [id]);
-    return notificacion[0];  
+    
+    const response = await axios.get(API_URL_AUTH+'/users/get/municipales');
+    return response.data;
+  } catch (error) {
+    throw new Error('Error obteniendo notificaciones: ' + error.message);
+  }
+}
+
+exports.getNotificacionService = async (uid) => {
+  try {
+    const sql = 'SELECT * FROM notificaciones WHERE user_uid = ? ORDER BY created_at DESC';
+    const [notificaciones] = await pool.query(sql, [uid]);
+    return notificaciones;
   } catch (error) {
     throw new Error('Error obteniendo notificación por ID: ' + error.message);
   }

@@ -1,0 +1,83 @@
+# Azure DevOps Pipeline para construir y desplegar un contenedor en Azure Container Apps
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - autenticacion/**
+
+resources:
+  - repo: self
+
+variables:
+  dockerRegistryServiceConnection: '61bca3f7-593a-4bef-909e-a5cc2f8af044'
+  imageRepository: 'autenticacion'
+  containerRegistry: 'reportescontainers.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/autenticacion/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  # Datos de Azure
+  name: 'my-pool'
+  RESOURCE_GROUP: 'ReportesGroup'
+  CONTAINER_APP_NAME: 'autenticacion'
+  AZURE_SUBSCRIPTION: 'Azure Container'
+
+stages:
+  - stage: Build
+    displayName: "Build Microservicio Autenticacion"
+    jobs:
+      - job: Build
+        displayName: "Construir y subir imagen de Microservicio Autenticacion"
+        pool:
+          name: 'my-pool'
+        steps:
+          - task: Docker@2
+            displayName: "Build y Push a ACR"
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              arguments: --no-cache
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(tag)
+  - stage: Deploy
+    displayName: "Desplegar en Azure Container Apps"
+    jobs:
+      - job: Deploy
+        displayName: "Actualizar Container App"
+        pool:
+          name: 'my-pool' 
+        steps:
+          - task: AzureCLI@2
+            displayName: "Autenticar en Azure"
+            inputs:
+              azureSubscription: $(AZURE_SUBSCRIPTION)
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
+
+          - task: AzureCLI@2
+            displayName: "Actualizar Azure Container App"
+            inputs:
+              azureSubscription: $(AZURE_SUBSCRIPTION)
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az containerapp update `
+                --name $(CONTAINER_APP_NAME) `
+                --resource-group $(RESOURCE_GROUP) `
+                --image $(containerRegistry)/$(imageRepository):$(tag) `
+                --revision-suffix "v$(tag)" 
+          - task: AzureCLI@2
+            displayName: "Reiniciar revisión activa"
+            inputs:
+              azureSubscription: $(AZURE_SUBSCRIPTION)
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az containerapp revision restart --name $(CONTAINER_APP_NAME) --resource-group $(RESOURCE_GROUP) --revision "autenticacion--v$(tag)"
+

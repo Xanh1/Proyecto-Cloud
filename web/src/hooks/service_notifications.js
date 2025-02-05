@@ -1,9 +1,9 @@
-import {GET_AC, GET_NOTIFIMUNI, POST_AC} from "./Connection";
+import {POST_NOTI} from "./Connection";
 
-export async function list_notificacionmuni(token) {
+export async function create_notificacion(data, token) {
     let datos = null;
     try{
-        datos = await GET_NOTIFIMUNI('notificaciones/all', token);
+        datos = await POST_NOTI("notificaciones/create", data);
     }
     catch(error){
         return error;
@@ -11,13 +11,14 @@ export async function list_notificacionmuni(token) {
     return datos.data
 }
 
-export async function list_notificacioncuidano(token) {
+export async function notificar_all_municipales(data) {
     let datos = null;
     try{
-        datos = await GET_NOTIFIMUNI('notificaciones/all', token);
+        datos = await POST_NOTI("notificaciones/notificar/municipales", data);
     }
     catch(error){
         return error;
     }
     return datos.data
 }
+

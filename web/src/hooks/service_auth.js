@@ -4,14 +4,10 @@ import { GET_AC } from "./Connection";
 export async function authPerson(data) {
 
   let datos = null;
-
   try {
-
     datos = await POST_AC("users/login", data);
-
   } catch (error) {
-    return error;
-    
+    return error; 
   }
 
   return datos.data;

@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   ssl: {
     rejectUnauthorized: true,
     ca: fs.readFileSync("./src/config/database/ca.pem").toString(),
-  },
+  }
 });
 
 pool.on('connection', (connection) => {

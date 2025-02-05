@@ -42,24 +42,27 @@ export const POST_AC = async (resource, data, token = "NONE") => {
 }
 
 export const POST_RP = async (resource, data, token = "NONE") => {
-    
-    let headers = {
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
-    }
-    
-    if (token != "NONE") {
-        headers = {
-            headers: {
-                "Accept": "application/json",
-                "X-Access-Token": token
-            }
-        }
+    let headers = {};
+
+    if (token !== "NONE") {
+        headers["X-Access-Token"] = token;
     }
 
-    return await axios.post(URL_NOTIFICATION + resource, data, headers)
+    if (data instanceof FormData) {
+        headers["Accept"] = "application/json";
+    } else {
+        headers["Accept"] = "application/json";
+        headers["Content-Type"] = "application/json";
+    }
+
+    try {
+       
+        const response = await axios.post(URL_REPORT + resource, data, { headers });
+        return response;
+    } catch (error) {
+        console.error("Error en la solicitud:", error);
+        throw error;
+    }
 }
 
 // Metodo GET
@@ -113,6 +116,9 @@ export const GET_RP = async (resource, token = "NONE") => {
     }
     return await axios.get(URL_REPORT + resource, headers);
 }
+
+
+
 export const GET_NOTIFIMUNI = async (resource, token = "NONE") => {
     let headers = {
         headers: {
@@ -128,4 +134,22 @@ export const GET_NOTIFIMUNI = async (resource, token = "NONE") => {
         }
     }
     return await axios.get(URL_NOTIFICATION + resource, headers);
+}
+
+export const POST_NOTI = async(resource, data, token = "NONE") => {
+    let headers = {
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+    }
+    if (token != "NONE") {
+        headers = {
+            headers: {
+                "Accept": "application/json",
+                "X-Access-Token": token
+            }
+        }
+    }
+    return await axios.post(URL_NOTIFICATION + resource, data, headers)
 }

@@ -52,7 +52,7 @@ export default function Header() {
         Reportes
       </span>
     </Link>
-    <Link className="px-4 py-2 border border-black text-black bg-white rounded-lg text-sm" href="/session">
+    <Link className="px-4 py-2 border border-black text-black bg-white rounded-lg text-sm" href="/login">
       Iniciar sesión
     </Link>
   </header>

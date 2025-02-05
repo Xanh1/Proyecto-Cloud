@@ -19,9 +19,10 @@ class Config:
     password = environ.get('MYSQL_PASSWORD')
     host = environ.get('MYSQL_HOST')
     db = environ.get('MYSQL_DATABASE')
+    port = environ.get('MYSQL_PORT')
     
     # SQLAlchemy Confing
-    SQLALCHEMY_DATABASE_URI = f'mysql://{user}:{password}@{host}/{db}'
+    SQLALCHEMY_DATABASE_URI = f'mysql://{user}:{password}@{host}:{port}/{db}'
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_RECORS_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = 'enable'

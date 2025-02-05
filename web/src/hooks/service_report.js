@@ -14,6 +14,66 @@ export async function list_reports(token) {
     return datos.data
 }
 
+export async function list_reports_desc(token) {
+    let datos = null;
+    
+    try{
+        datos = await GET_RP('reports/all/desc');
+    }
+    
+    catch(error){
+        return error;
+    }
+    
+    return datos.data
+}
+
+
+
+export async function listar_reportes_ciudadano(token, uid) {
+    let datos = null;
+    try{
+        datos = await GET_RP('report/user/'+uid, token);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
+}
+
+export async function get_report_by_id(uid) {
+    let datos = null;
+    try{
+        datos = await GET_RP('/report/view/'+uid);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
+}
+
+export async function update_report(data, token){
+    let datos = null;
+    try{
+        datos = await POST_RP('report/update', data, token);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
+}
+
+export async function create_report(params) {
+    let datos = null;
+    try{
+        datos = await POST_RP('report/create', params);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data   
+}
+
 export async function changeStatusInProgress(data, token){
     let datos = null;
     try{

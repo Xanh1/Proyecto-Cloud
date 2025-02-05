@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, make_response, request
+from flask import Blueprint, jsonify, make_response, request, send_from_directory
 from routes.utils import json_response
 from controllers.report_controller import ReportController
 from routes.schemas.schema import create_report, chage_status
@@ -9,21 +9,27 @@ report_url = Blueprint('report_url', __name__)
 
 report_controller = ReportController()
 
-@report_url.route('/create', methods = ['POST'])
-@expects_json(create_report)
+@report_url.route('/report/create', methods=['POST'])
 def create():
-
-    json = request.json
+    try:
+        #  Usar request.form y request.files para manejar `multipart/form-data`
+        msg, code, context = report_controller.create()
+        return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
+    except Exception as e:
+        return make_response(jsonify({'msg': 'Error interno', 'error': str(e)}), 500)
     
-    msg, code, context = report_controller.create(data = json)
-
-    return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
-
-@report_url.route('/report/all/<uid>', methods = ['GET'])
-def reports_by_user(uid):
+@report_url.route('/report/user/<uid>', methods = ['GET'])
+def reports_user(uid):
     
-    msg, code, context  = report_controller.get_reports_by_user(uid)
+    msg, code, context = report_controller.get_reports_by_user(uid)
+
+    return make_response(jsonify(json_response(msg, code, context)), code)
+
+@report_url.route('/report/view/<uid>', methods = ['GET'])
+def view_report(uid):
     
+    msg, code, context = report_controller.view_report(uid)
+
     return make_response(jsonify(json_response(msg, code, context)), code)
 
 @report_url.route('/report/all', methods = ['GET'])
@@ -33,32 +39,27 @@ def reports_all():
     
     return make_response(jsonify(json_response(msg, code, context)), code)
 
-@report_url.route('/report/start', methods = ['POST'])
-@expects_json(chage_status)
-def start_status_report():
-
-    report = request.json['report']
+@report_url.route('/reports/all/desc', methods = ['GET'])
+def reports_desc():
     
-    msg, code, context = report_controller.start_report(report)
-
-    return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
-
-@report_url.route('/report/cancel', methods = ['POST'])
-@expects_json(chage_status)
-def cancel_status_report():
-
-    report = request.json['report']
+    msg, code, context  = report_controller.get_all_desc()
     
-    msg, code, context = report_controller.report_cancel(report)
+    return make_response(jsonify(json_response(msg, code, context)), code)
 
-    return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
+@report_url.route('/uploads/<filename>', methods=['GET'])
+def uploaded_file(filename):
+    return send_from_directory('./uploads', filename)
 
-@report_url.route('/report/finish', methods = ['POST'])
+
+@report_url.route('/report/update', methods=['POST'])
 @expects_json(chage_status)
-def finsih_status_report():
-
-    report = request.json['report']
+def update_report():
     
-    msg, code, context = report_controller.report_finish(report)
-
-    return make_response(jsonify({'msg': msg, 'code': code, 'context': context}), code)
+    data = request.json
+    
+    report = data['report']
+    status = data['status']
+    
+    msg, code, context = report_controller.reporte_update(report, status)
+    
+    return make_response(jsonify(json_response(msg, code, context)), code)

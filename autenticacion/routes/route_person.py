@@ -144,3 +144,10 @@ def login_app():
 
     return make_response(response)
     
+
+@api_persona.route('/users/get/municipales' , methods = ["GET"])
+def get_municipales():
+
+    response = personaC.getMunicipales()
+
+    return make_response(response)

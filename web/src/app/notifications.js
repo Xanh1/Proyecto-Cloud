@@ -1,5 +1,5 @@
 export async function fetchNotifications(userId) {
-    const response = await fetch(`http://localhost:5000/api/notifications?user_id=${userId}`);
+    const response = await fetch(`http://:5000/api/notifications?user_id=${userId}`);
     const data = await response.json();
     return data;
 }

@@ -1,3 +1,4 @@
 virtual/
 __pycache__/
 reports.sqlite3
+/uploads/

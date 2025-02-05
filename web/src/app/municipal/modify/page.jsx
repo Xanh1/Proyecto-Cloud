@@ -5,32 +5,48 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import swal from "sweetalert";
-import { save_person } from "../../../hooks/service_person";
+import { modify_person, search_person } from "../../../hooks/service_person";
 import Cookies from "js-cookie";
-import Header from "@/components/Header";
 
-export default function newPerson() {
+import { useState } from "react";
+import HeaderAccount from "@/components/HeaderAccount";
+
+export default function modifyPerson() {
   const token = Cookies.get("token");
+  const uid = Cookies.get("necesary");
 
   const router = useRouter();
+  let [estado, setEstado] = useState(false);
+  let [person, setPerson] = useState(null);
 
-  //validación de campos
+  if (!estado) {
+    search_person(uid, token).then((info) => {
+      if (info.code == 200) {
+        setPerson(info.datos);
+      } else {
+        swal({
+          title: "Error",
+          text: info.response.data.info.error,
+          icon: "error",
+          button: "Aceptar",
+          timer: 8000,
+          closeOnEsc: true,
+        });
+      }
+    });
+    setEstado(true);
+  }
+
   const validationSchema = yup.object().shape({
     name: yup.string().required("Campos obligatorios"),
-    dni: yup
+    last_name: yup.string().required("Campos obligatorios"),
+    email: yup.string().required("Campos obligatorios (@unl.edu.ec)"),
+    old_password: yup.string().required("Campos obligatorios"),
+    password: yup
       .string()
       .required("Campos obligatorios")
-      .length(10, "El dni debe tener 10 caracteres"),
-    last_name: yup.string().required("Campos obligatorios"),
-    email: yup
-      .string()
-      .required("Campos obligatorios (@unl.edu.ec o gmail.com)")
-      .matches(
-        /^[a-zA-Z0-9._%+-]+@(unl\.edu\.ec|gmail\.com)$/,
-        "Ingrese un correo válido (@unl.edu.ec o gmail.com)"
-      ),
-    password: yup.string().required("Campos obligatorios"),
-    rol: yup.string().default("ciudadano"),
+      .oneOf([yup.ref("confirm_password")], "Contraseña no coincide"),
+    confirm_password: yup.string().required("Contraseña no coincide"),
   });
 
   //validar formulario
@@ -41,18 +57,25 @@ export default function newPerson() {
   let { errors } = formState;
 
   const enviar_data = (data) => {
-    console.log();
-    save_person(data, token).then((info) => {
+    let datos = {
+      name: data.name,
+      last_name: data.last_name,
+      email: data.email,
+      password: data.password,
+      external: uid,
+      old_password: data.old_password,
+    };
+    modify_person(datos, token).then((info) => {
       if (info.code == "200") {
         swal({
           title: "Acción Satisfactoria",
-          text: "Cuenta registrada",
+          text: "Cuenta Actualizada",
           icon: "success",
           button: "Aceptar",
           timer: 8000,
           closeOnEsc: true,
         });
-        router.push("/session");
+        router.push("/login");
         router.refresh();
       } else {
         swal({
@@ -68,13 +91,16 @@ export default function newPerson() {
     });
   };
 
+  const cancelar = () => {
+    router.push("/municipal");
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-white text-black">
-      <Header />
-
-      <main className="flex-1 flex flex-col items-center justify-center">
-        <h1 className="px-12 font-semilbold text-4xl text-left">
-          Registro
+      <HeaderAccount />
+      <main className="flex-1 w-full px-6 py-10">
+        <h1 className="font-semibold text-2xl text-center">
+          Actualizar Cuenta
         </h1>
         <form
           className="my-8 flex flex-col justify-center items-center"
@@ -88,12 +114,13 @@ export default function newPerson() {
                   htmlFor="email"
                   className="block text-sm font-medium mb-2"
                 >
-                  Name
+                  Nombre
                 </label>
                 <input
                   type="text"
                   name="name"
                   id="name"
+                  defaultValue={person && person.name}
                   {...register("name")}
                   className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                 />
@@ -107,12 +134,13 @@ export default function newPerson() {
                   htmlFor="email"
                   className="block text-sm font-medium mb-2"
                 >
-                  Last name
+                  Apellido
                 </label>
                 <input
                   type="text"
                   name="email"
                   id="email"
+                  defaultValue={person && person.last_name}
                   {...register("last_name")}
                   className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                 />
@@ -127,14 +155,16 @@ export default function newPerson() {
                 htmlFor="password"
                 className="block text-sm font-medium mb-2"
               >
-                dni
+                Dni
               </label>
               <input
                 type="text"
                 name="dni"
                 id="dni"
+                defaultValue={person && person.dni}
                 {...register("dni")}
-                className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none bg-gray-100"
+                readOnly
               />
               <span className="block text-red-500 text-xs pl-1 min-h-5">
                 {errors.dni?.message}
@@ -142,19 +172,22 @@ export default function newPerson() {
             </div>
 
             <div className="flex flex-col">
-              <h1 className="font-semibold text-sm my-4">Account info</h1>
+              <h1 className="font-semibold text-sm my-4">
+                Información de la Cuenta
+              </h1>
 
               <div className="w-full my-2">
                 <label
                   htmlFor="password"
                   className="block text-sm font-medium mb-2"
                 >
-                  Email
+                  Correo
                 </label>
                 <input
                   type="email"
                   name="email"
                   id="email"
+                  defaultValue={person && person.email}
                   {...register("email")}
                   className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
                 />
@@ -168,7 +201,26 @@ export default function newPerson() {
                   htmlFor="password"
                   className="block text-sm font-medium mb-2"
                 >
-                  Password
+                  Contraseña Anterior
+                </label>
+                <input
+                  type="password"
+                  name="old_password"
+                  id="password"
+                  {...register("old_password")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.old_password?.message}
+                </span>
+              </div>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Nueva Contraseña
                 </label>
                 <input
                   type="password"
@@ -181,16 +233,45 @@ export default function newPerson() {
                   {errors.password?.message}
                 </span>
               </div>
+
+              <div className="w-full my-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Confirmar Contraseña
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  {...register("confirm_password")}
+                  className="py-2 px-2 block w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                />
+                <span className="block text-red-500 text-xs pl-1 min-h-5">
+                  {errors.confirm_password?.message}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="my-4 flex justify-between">
             {" "}
             {/* Changed to flex justify-between for left and right alignment */}
+            <button
+              type="button"
+              onClick={cancelar}
+              className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2"
+            >
+              <span className="w-56 h-48 rounded bg-red-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
+              <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
+                Cancelar
+              </span>
+            </button>
             <button className="btn relative border block w-full font-medium border-gray-200 inline-flex items-center justify-start overflow-hidden transition-all rounded-lg text-sm hover:bg-white group py-2 px-2 ml-4">
               <span className="w-56 h-48 rounded bg-blue-500 absolute bottom-0 left-0 translate-x-full ease-out duration-500 transition-all translate-y-full mb-9 ml-9 group-hover:ml-0 group-hover:mb-32 group-hover:translate-x-0"></span>
               <span className="relative w-full text-center transition-colors duration-300 ease-in-out group-hover:text-white">
-                Registrarse
+                Actualizar
               </span>
             </button>
           </div>

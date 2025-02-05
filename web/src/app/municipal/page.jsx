@@ -1,11 +1,9 @@
 "use client";
 import Link from "next/link";
 import { list_persons, modify_status } from "../../hooks/service_person";
-
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import swal from "sweetalert";
-
 import { useRouter } from "next/navigation";
 import HeaderAccount from "@/components/HeaderAccount";
 
@@ -53,7 +51,7 @@ export default function Person() {
     });
     Cookies.remove("token");
     Cookies.remove("user");
-    router.push("/session");
+    router.push("/login");
     return null;
   }
 
@@ -82,78 +80,56 @@ export default function Person() {
         }).then(() => {
           window.location.reload();
         });
-        console.log("No se pudo actualizar");
       }
     });
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-white text-black">
+    <div className="min-h-screen flex flex-col items-center bg-gray-100 text-black">
       <HeaderAccount />
-      <main className="flex-1 w-full px-6 py-10">
-        <div className="flex justify-between">
-          <h1 className="font-semibold text-2xl">Cuentas</h1>
+      <main className="flex-1 w-full max-w-6xl px-4 py-10">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+          <h1 className="font-semibold text-3xl text-gray-800">Cuentas</h1>
           <Link
-            href="/person/municipalNew"
-            className="py-1 px-3 rounded-lg bg-black text-white text-sm content-center"
+            href="/municipal/new"
+            className="py-2 px-4 mt-3 sm:mt-0 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md transition"
           >
             Agregar Cuenta
           </Link>
         </div>
 
-        <div className="my-8">
-          <table className="w-full">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+          <table className="w-full text-sm text-left text-gray-600">
+            <thead className="bg-blue-600 text-white">
               <tr>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Nro
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Dni
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Nombre
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Apellido
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Correo
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Creado en
-                </th>
-                <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
-                  Estado
-                </th>
+                <th className="p-4">Nro</th>
+                <th className="p-4">Dni</th>
+                <th className="p-4">Nombre</th>
+                <th className="p-4">Apellido</th>
+                <th className="p-4">Correo</th>
+                <th className="p-4">Creado en</th>
+                <th className="p-4">Estado</th>
               </tr>
             </thead>
             <tbody>
               {persons &&
                 persons.map((person, index) => (
-                  <tr key={index}>
-                    <td className="p-3 text-sm text-gray-700 ">{index + 1}</td>
-
-                    <td className="p-3 text-sm text-gray-700 ">{person.dni}</td>
-                    <td className="p-3 text-sm text-gray-700 ">
-                      {person.name}
-                    </td>
-                    <td className="p-3 text-sm text-gray-700 ">
-                      {person.last_name}
-                    </td>
-                    <td className="p-3 text-sm text-gray-700 ">
-                      {person.email}
-                    </td>
-                    <td className="p-3 text-sm text-gray-700 ">
-                      {format_fecha(person.created_at)}
-                    </td>
-                    <td className="p-3 text-sm text-gray-700 pl-8">
+                  <tr
+                    key={index}
+                    className="border-b hover:bg-gray-100 transition"
+                  >
+                    <td className="p-4">{index + 1}</td>
+                    <td className="p-4">{person.dni}</td>
+                    <td className="p-4">{person.name}</td>
+                    <td className="p-4">{person.last_name}</td>
+                    <td className="p-4">{person.email}</td>
+                    <td className="p-4">{format_fecha(person.created_at)}</td>
+                    <td className="p-4 text-center">
                       <input
                         type="checkbox"
+                        className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-200"
                         checked={person.status}
-                        onChange={(e) =>
-                          handleStatusChange(person.uid, e.target.checked)
-                        }
+                        onChange={() => handleStatusChange(person.uid)}
                       />
                     </td>
                   </tr>

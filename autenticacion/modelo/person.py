@@ -34,6 +34,7 @@ class Person(Base.Model):
             'last_name' : self.last_name,
             'email'     : self.email,
             'status'    : self.status,
+            'uid'       : self.uid
         }
     
     def copy(self):

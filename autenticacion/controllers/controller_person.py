@@ -165,6 +165,7 @@ class PersonaControl():
             'id_person' : person.id,
             'uid': person.uid,
             'rol' : person.rol,
+            'email': person.email
         }
         return jsonify(response_data), 200
 

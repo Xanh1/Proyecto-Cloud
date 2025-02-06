@@ -52,14 +52,19 @@ def uploaded_file(filename):
 
 
 @report_url.route('/report/update', methods=['POST'])
-@expects_json(chage_status)
 def update_report():
+    
+    msg, code, context = report_controller.reporte_update()
+    
+    return make_response(jsonify(json_response(msg, code, context)), code)
+
+@report_url.route('/report/delete/', methods=['POST'])
+def delete_report():
     
     data = request.json
     
-    report = data['report']
-    status = data['status']
-    
-    msg, code, context = report_controller.reporte_update(report, status)
+    uid = data['uid']
+
+    msg, code, context = report_controller.eliminar_reporte(uid)
     
     return make_response(jsonify(json_response(msg, code, context)), code)

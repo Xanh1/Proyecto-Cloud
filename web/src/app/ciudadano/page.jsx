@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import swal from "sweetalert";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { create_report, listar_reportes_ciudadano } from "@/hooks/service_report";
+import { create_report, listar_reportes_ciudadano, delete_report } from "@/hooks/service_report";
 import { notificar_all_municipales } from "@/hooks/service_notifications"; 
 import HeaderAccount from "@/components/HeaderAccount";
 import { FaEye} from "react-icons/fa";
@@ -17,6 +17,11 @@ const statusMap = {
 };
 
 export default function Report() {
+
+  const token = Cookies.get("token");
+  const uid = Cookies.get("uid");
+  const email = Cookies.get("email");
+  
   const router = useRouter();
   const [reports, setReports] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -24,21 +29,75 @@ export default function Report() {
     subject: "",
     description: "",
     direccion: "",
+    email: email,
+    telefono: "",
     user: "",
     imagen: null,
   });
-  const token = Cookies.get("token");
-  const uid = Cookies.get("uid");
+
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
+  const handleDeleteReport = (reporte_uid) => {
+    swal({
+      title: "Eliminar Reporte",
+      text: "¿Estás seguro de eliminar este reporte?",
+      icon: "warning",
+      buttons: ["Cancelar", "Eliminar"],
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        try {
+          var data = {
+            uid: reporte_uid,
+          }
+          const response = await delete_report(data, token);
+        
+          if (response.code === 200) {
+            swal({
+              title: "Reporte eliminado",
+              text: "El reporte ha sido eliminado exitosamente.",
+              icon: "success",
+              button: "Aceptar",
+              timer: 8000,
+              closeOnEsc: true,
+            }).then(() => {
+              listar_reportes_ciudadano(token, uid).then((info) => {
+                if (info.code === 200) {
+                  setReports(info.context);
+                }
+              }
+              );
+            });
+          } else {
+            swal({
+              title: "Error",
+              text: response.mensaje || "No se pudo eliminar el reporte",
+              icon: "error",
+              button: "Aceptar",
+              timer: 8000,
+              closeOnEsc: true,
+            });
+          }
+        } catch (error) {
+          swal({
+            title: "Error",
+            text: error.message || "Ocurrió un problema al eliminar el reporte",
+            icon: "error",
+            button: "Aceptar",
+            timer: 8000,
+            closeOnEsc: true,
+          });
+        }
+      }
+    }
+    );
+  };
   const sendNoti = async (reporte_id) => {
     const data = {
       reporte_id: reporte_id,
       user_uid: uid
     };
-
-    console.log(data);
 
     try {
       const response = await notificar_all_municipales(data);
@@ -58,6 +117,8 @@ export default function Report() {
     formData.append("subject", newReport.subject);
     formData.append("description", newReport.description);
     formData.append("direccion", newReport.direccion);
+    formData.append("email", newReport.email);
+    formData.append("telefono", newReport.telefono);
     formData.append("user", uid);
     if (newReport.imagen) {
       formData.append("imagen", newReport.imagen);
@@ -78,8 +139,9 @@ export default function Report() {
           timer: 8000,
           closeOnEsc: true,
         }).then(() => {
-          setNewReport({ subject: "", description: "", direccion: "", imagen: null });
+          setNewReport({ subject: "", description: "", direccion: "", email: "", telefono: "", imagen: null });
           listar_reportes_ciudadano(token, uid).then((info) => {
+            console.log(info);
             if (info.code === 200) {
               setReports(info.context);
             }
@@ -121,7 +183,6 @@ export default function Report() {
   useEffect(() => {
     listar_reportes_ciudadano(token, uid).then((info) => {
       if (info.code === 200) {
-      
         setReports(info.context);
       }
     });
@@ -141,6 +202,8 @@ export default function Report() {
           </button>
         </div>
 
+        
+
         {showModal && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg w-1/3">
@@ -154,7 +217,7 @@ export default function Report() {
                   onChange={(e) => setNewReport({ ...newReport, subject: e.target.value })}
                 />
                 <textarea
-                  className="w-full p-2 border mb-4 h-60"
+                  className="w-full p-2 border mb-4 h-40"
                   placeholder="Descripción"
                   value={newReport.description}
                   onChange={(e) => setNewReport({ ...newReport, description: e.target.value })}
@@ -165,6 +228,20 @@ export default function Report() {
                   placeholder="Dirección"
                   value={newReport.direccion}
                   onChange={(e) => setNewReport({ ...newReport, direccion: e.target.value })}
+                />
+                <input
+                  type="email"
+                  className="w-full p-2 border mb-4"
+                  placeholder="Correo Electrónico"
+                  value={newReport.email}
+                  onChange={(e) => setNewReport({ ...newReport, email: e.target.value })}
+                />
+                <input
+                  type="tel"
+                  className="w-full p-2 border mb-4"
+                  placeholder="Teléfono"
+                  value={newReport.telefono}
+                  onChange={(e) => setNewReport({ ...newReport, telefono: e.target.value })}
                 />
                 <input
                   type="file"
@@ -191,7 +268,7 @@ export default function Report() {
           </div>
         )}
 
-        <div className="my-8">
+<div className="my-8">
           {reports && reports.length > 0 ? (
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -229,8 +306,16 @@ export default function Report() {
                       >
                         <FaEye className="mr-1" /> Ver
                       </button>
-                     
+                      {report.status === 0 && (
+                        <button
+                          className="px-2 py-1 bg-red-500 text-white rounded"
+                          onClick={() => handleDeleteReport(report.uid)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </td>
+
                   </tr>
                 ))}
               </tbody>

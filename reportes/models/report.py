@@ -21,9 +21,13 @@ class Report(DB.Model):
     description = DB.Column(DB.Text, nullable=False)
     direccion   = DB.Column(DB.String(255), nullable=False)
     imagen_path = DB.Column(DB.String(255), nullable=False)
+    imagen_path_resuelto = DB.Column(DB.String(255), nullable=True)
     status      = DB.Column(DB.Enum(ReportStatus), nullable=False, default=ReportStatus.PENDIENTE)
+    comentario  = DB.Column(DB.Text, nullable=True)
     user_uid    = DB.Column(DB.String(60), nullable=False)
-    
+    correo      = DB.Column(DB.String(255), nullable=False)
+    telefono    = DB.Column(DB.String(255), nullable=False)
+
     # audit fields
     created_at = DB.Column(DB.DateTime, default=datetime.now)
     updated_at = DB.Column(DB.DateTime, default=datetime.now, onupdate=datetime.now)
@@ -38,6 +42,10 @@ class Report(DB.Model):
             'direccion': self.direccion,
             'status': self.status,
             'imagen_path': self.imagen_path,
+            'imagen_path_resuelto': self.imagen_path_resuelto,
             'created_at': self.created_at,
-            'user_uid': self.user_uid
+            'user_uid': self.user_uid,
+            'comentario': self.comentario,
+            'correo': self.correo,
+            'telefono': self.telefono
         }

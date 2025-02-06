@@ -35,6 +35,7 @@ export default function Login() {
         Cookies.set("id_person", info.id_person);
         Cookies.set("rol", info.rol);
         Cookies.set("uid", info.uid);
+        Cookies.set("email", info.email);
   
         swal({
           title: "Acción Satisfactoria",
@@ -49,8 +50,10 @@ export default function Login() {
           router.push("/ciudadano"); 
         } else if (info.rol === "municipal") {
           router.push("/municipal"); 
-        } else {
-         
+        } else if (info.rol === "administrador") {
+          router.push("/administrador"); 
+        } 
+        else {
           router.push("/"); 
         }
         router.refresh();

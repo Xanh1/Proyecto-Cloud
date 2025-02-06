@@ -65,6 +65,7 @@ export const POST_RP = async (resource, data, token = "NONE") => {
     }
 }
 
+
 // Metodo GET
 export const GET_SE = async (resource, token = "NONE") => {
     let headers = {

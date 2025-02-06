@@ -1,141 +1,87 @@
 "use client";
-import Link from "next/link";
-import { list_persons, modify_status } from "../../hooks/service_person";
-import Cookies from "js-cookie";
-import { useState, useEffect } from "react";
-import swal from "sweetalert";
-import { useRouter } from "next/navigation";
-import HeaderAccount from "@/components/HeaderAccount";
 
-export default function Person() {
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { list_reports } from "@/hooks/service_report";
+import HeaderAccount from "@/components/HeaderAccount";
+import { FaEye } from "react-icons/fa";
+
+const statusMap = {
+  0: { label: "Pendiente", className: "bg-yellow-500" },
+  1: { label: "En Proceso", className: "bg-blue-500" },
+  2: { label: "Resuelto", className: "bg-green-500" },
+  3: { label: "Rechazado", className: "bg-red-500" },
+};
+export default function Report() {
   const router = useRouter();
-  const [persons, setPersons] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [reports, setReports] = useState(null);
   const token = Cookies.get("token");
 
   useEffect(() => {
-    if (!token) {
-      setIsLoggedIn(false);
-      return;
-    }
-
-    list_persons(token)
-      .then((info) => {
-        if (info.code === 200) {
-          setPersons(info.datos);
-        } else {
-          setIsLoggedIn(false);
-        }
-      })
-      .catch(() => {
-        setIsLoggedIn(false);
-      });
-  }, []);
-
-  const format_fecha = (fecha) => {
-    const date = new Date(fecha);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  if (!isLoggedIn) {
-    swal({
-      title: "Error",
-      text: "Vuelva a Iniciar Sesion",
-      icon: "error",
-      button: "Accept",
-      timer: 8000,
-      closeOnEsc: true,
-    });
-    Cookies.remove("token");
-    Cookies.remove("user");
-    router.push("/login");
-    return null;
-  }
-
-  const handleStatusChange = async (person_uid) => {
-    const data = { external: person_uid };
-    modify_status(data, token).then((info) => {
+    list_reports(token).then((info) => {
       if (info.code === 200) {
-        swal({
-          title: "Acción Satisfactoria",
-          text: "Estado actualizado",
-          icon: "success",
-          button: "Accept",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        swal({
-          title: "Error",
-          text: info.response.request.statusText,
-          icon: "error",
-          button: "Aceptar",
-          timer: 8000,
-          closeOnEsc: true,
-        }).then(() => {
-          window.location.reload();
-        });
+        setReports(info.context);
       }
     });
-  };
+  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100 text-black">
+    <div className="min-h-screen flex flex-col items-center bg-white text-black">
       <HeaderAccount />
-      <main className="flex-1 w-full max-w-6xl px-4 py-10">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="font-semibold text-3xl text-gray-800">Cuentas</h1>
-          <Link
-            href="/municipal/new"
-            className="py-2 px-4 mt-3 sm:mt-0 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm shadow-md transition"
-          >
-            Agregar Cuenta
-          </Link>
+      <main className="flex-1 w-full px-6 py-10">
+        <div className="flex justify-between">
+          <h1 className="font-semibold text-2xl">Reportes</h1>
+          
         </div>
 
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-          <table className="w-full text-sm text-left text-gray-600">
-            <thead className="bg-blue-600 text-white">
-              <tr>
-                <th className="p-4">Nro</th>
-                <th className="p-4">Dni</th>
-                <th className="p-4">Nombre</th>
-                <th className="p-4">Apellido</th>
-                <th className="p-4">Correo</th>
-                <th className="p-4">Creado en</th>
-                <th className="p-4">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {persons &&
-                persons.map((person, index) => (
-                  <tr
-                    key={index}
-                    className="border-b hover:bg-gray-100 transition"
-                  >
-                    <td className="p-4">{index + 1}</td>
-                    <td className="p-4">{person.dni}</td>
-                    <td className="p-4">{person.name}</td>
-                    <td className="p-4">{person.last_name}</td>
-                    <td className="p-4">{person.email}</td>
-                    <td className="p-4">{format_fecha(person.created_at)}</td>
-                    <td className="p-4 text-center">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring focus:ring-blue-200"
-                        checked={person.status}
-                        onChange={() => handleStatusChange(person.uid)}
-                      />
+        <div className="my-8">
+          {reports && reports.length > 0 ? (
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                 
+                  <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                    Motivo
+                  </th>
+                  <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                    Descripción
+                  </th>
+                  <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left whitespace-nowrap" style={{ width: '150px' }}>
+                    Estado
+                  </th>
+                  <th className="p-3 text-sm text-gray-500 font-semibold tracking-wide text-left">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((report, index) => (
+                  <tr key={index}>
+                  
+                    <td className="p-3 text-sm text-gray-700">{report.subject}</td>
+                    <td className="p-3 text-sm text-gray-700">{report.description}</td>
+                    <td className="p-3 text-sm text-gray-700">
+                    <span className={`px-2 py-1 text-white rounded ${statusMap[report.status]?.className || "bg-gray-500"}`}>
+                      {statusMap[report.status]?.label || "Desconocido"}
+                    </span>
+                  </td>
+                    <td className="p-3 text-sm text-gray-700 flex space-x-2">
+                      <button
+                        className="px-2 py-1 bg-green-500 text-white rounded flex items-center"
+                        onClick={() => router.push(`/report/view/${report.uid}`)}
+                      >
+                        <FaEye className="mr-1" /> Ver
+                      </button>
+                     
                     </td>
                   </tr>
                 ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-gray-500 text-center">No hay reportes disponibles.</p>
+          )}
         </div>
       </main>
     </div>

@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FaArrowLeft, FaMapMarkerAlt } from "react-icons/fa";
+import { search_person } from "@/hooks/service_person";
 import {create_notificacion} from "@/hooks/service_notifications";
 import swal from "sweetalert";
 import Cookies from "js-cookie";
 import { get_report_by_id, update_report } from "@/hooks/service_report";
 import HeaderAccount from "@/components/HeaderAccount";
 
-const API_URL_REPORTES = "https://reportes.blackgrass-9559a3b0.westus2.azurecontainerapps.io";
+const API_URL_REPORTES = process.env.API_REPORT_SERVICE;
 
 const statusMap = {
   0: { label: "Pendiente", className: "bg-yellow-500" },
@@ -30,6 +31,10 @@ export default function ReportView() {
   const [originalStatus, setOriginalStatus] = useState(null);
   const [userRole, setUserRole] = useState(null); 
   const [ciudadano_uid, setCiudadano_uid] = useState(null);
+  const [comment, setComment] = useState("");
+  const [image, setImage] = useState(null);
+  let [person, setPerson] = useState(null);
+
 
   useEffect(() => {
     const role = Cookies.get("rol"); // Obtener el rol del usuario desde las cookies
@@ -43,6 +48,13 @@ export default function ReportView() {
           setStatus(response.context.status);
           setOriginalStatus(response.context.status);
           setCiudadano_uid(response.context.user_uid);
+          search_person(response.context.user_uid, token).then((info) => {
+            if (info.code == 200) {
+              setPerson(info.datos);
+            } else {
+              console.log('Error al obtener datos de la persona');
+            }
+          });
         } else {
           swal({
             title: "Error",
@@ -62,12 +74,21 @@ export default function ReportView() {
   };
 
   const sendNoti = async (reporte_id, reporte_status) => {
+    search_person(user_uid, token).then((info) => {
+      if (info.code == 200) {
+        setPerson(info.datos);
+      } else {
+        console.log('Error al obtener datos de la persona');
+      }
+    });
+    var municipal_nombre = person.name +" "+person.last_name
     var data = {
       ciudadano_uid: ciudadano_uid,
       reporte_id: reporte_id,
       reporte_status: reporte_status,
       rol: rol ,
-      municipal_uid: user_uid
+      municipal_uid: user_uid,
+      municipal_nombre: municipal_nombre
     };
     try {
       const response = await create_notificacion(data, token);
@@ -82,9 +103,26 @@ export default function ReportView() {
   };
 
   const saveStatusChange = () => {
-    const data = { report: uid, status: status };
+    // Crear FormData
+    const formData = new FormData();
+    formData.append("report", uid);
+    formData.append("status", status);
+    formData.append("comentario", comment.trim()); // Eliminar espacios vacíos
+    formData.append("imagen", image);
+    
 
-    update_report(data, token).then((response) => {
+    if (!comment.trim()) { // Validar comentario vacío
+        swal({
+            title: "Error",
+            text: "No se puede enviar un comentario vacío",
+            icon: "error",
+            button: "Aceptar",
+            timer: 5000,
+        });
+        return;
+    }
+    
+    update_report(formData, token).then((response) => {
       sendNoti(uid, statusMap[status].label);   
       if (response.code === 200) {
         swal({
@@ -107,6 +145,10 @@ export default function ReportView() {
     });
   };
 
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0]);
+  };
+
   if (!report) {
     return <p>Cargando...</p>;
   }
@@ -117,7 +159,7 @@ export default function ReportView() {
       <main className="flex-1 w-full px-6 py-10">
         <div className="flex justify-between">
           <h1 className="font-semibold text-2xl"> {report.subject}</h1>
-
+  
           <button
             onClick={() =>
               userRole === "municipal"
@@ -129,10 +171,10 @@ export default function ReportView() {
             <FaArrowLeft className="mr-2" /> Regresar
           </button>
         </div>
-
+  
         <div className="my-8 p-6 border rounded-lg shadow-lg bg-white">
           <h2 className="text-xl font-semibold mb-4">Detalles</h2>
-
+  
           <div className="grid md:grid-cols-2 gap-6">
             {/* Columna Izquierda: Detalles */}
             <div className="flex flex-col justify-between">
@@ -141,6 +183,18 @@ export default function ReportView() {
                 <p className="text mt-3 mb-3 flex items-center">
                   <FaMapMarkerAlt className="mr-2" /> {report.direccion}
                 </p>
+                <label className="block text-sm font-medium mb-2">Correo:</label>
+                <p className="text mt-3 mb-3 flex items-center">
+                  {report.correo}
+                </p>
+                <label className="block text-sm font-medium mb-2">Telefono:</label>
+                <p className="text mt-3 mb-3 flex items-center">
+                  {report.telefono}
+                </p>
+                <label className="block text-sm font-medium mb-2">Fecha de creacion :</label>
+                <p className="text mt-3 mb-3 flex items-center">
+                  {new Date(report.created_at).toLocaleDateString()}
+                </p>
                 <span
                   className={`px-2 py-1 mt-3 text-white rounded ${
                     statusMap[report.status]?.className || "bg-gray-500"
@@ -148,11 +202,18 @@ export default function ReportView() {
                 >
                   {statusMap[report.status]?.label || "Desconocido"}
                 </span>
+                
               </div>
-
+  
               {/* Si el usuario es municipal, muestra el selector de estado */}
               {userRole === "municipal" && (
+
                 <div className="mt-4">
+                  <label className="block text-sm font-medium mb-2">Creado Por:</label>
+                  <p className="text mt-3 mb-3 flex items-center">
+                    {person ? `${person.name} ${person.last_name}` : "Cargando..."}
+                  </p>
+
                   <label className="block text-sm font-medium mb-2">Estado:</label>
                   <select
                     value={status}
@@ -165,6 +226,24 @@ export default function ReportView() {
                       </option>
                     ))}
                   </select>
+  
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium mb-2">Comentario:</label>
+                    <textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      className="py-2 px-2 border border-gray-300 rounded-lg text-sm w-full"
+                      rows="4"
+                      placeholder="Escribe un comentario..."
+                    />
+                  </div>
+                  {status === 2 && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium mb-2">Subir Imagen:</label>
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="py-2 px-2 border border-gray-300 rounded-lg text-sm w-full" />
+                    </div>
+                  )}
+  
                   <button
                     onClick={saveStatusChange}
                     disabled={status === originalStatus}
@@ -178,24 +257,43 @@ export default function ReportView() {
                   </button>
                 </div>
               )}
-            </div>
+  
+              {/* Si el usuario es ciudadano, mostrar el comentario del reporte */}
+              {userRole === "ciudadano"  && (
+              <section className="mt-4">
+                  <h2 className="text-xl font-semibold mb-4 border-b pb-2">Comentario</h2>
+                  {report.comentario ? (
+                      <p className="text-sm">{report.comentario}</p>
+                  ) : (
+                      <p className="text-sm text-gray-500">No hay comentarios.</p>
+                  )}
+                  {report.imagen_path_resuelto && (
+                      <div className="mt-4">
+                          <img src={ API_URL_REPORTES + report.imagen_path_resuelto} alt="Imagen del reporte" className="max-w-full h-auto rounded-lg" />
+                      </div>
+                  )}
+              </section>
+          )}
 
+            </div>
+  
             {report.imagen_path && (
-              <div className="flex justify-center">
-                <div className="rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                  <img
-                    src={API_URL_REPORTES + report.imagen_path}
-                    alt="Imagen del reporte"
-                    className="w-full h-auto"
-                    width={600}
-                    height={600}
-                  />
-                </div>
+            <div className="flex justify-center">
+              <div className="rounded-lg overflow-hidden border border-gray-300 shadow-md max-w-full h-64"> {/* Define la altura del contenedor */}
+                <img
+                  src={API_URL_REPORTES + report.imagen_path}
+                  alt="Imagen del reporte"
+                  className="w-full h-full object-contain"  // Hace que la imagen ocupe el 100% del contenedor, manteniendo la proporción
+                />
               </div>
-            )}
+            </div>
+          )}
+
+
           </div>
         </div>
       </main>
     </div>
   );
+  
 }

@@ -4,7 +4,7 @@ var api_validator = require('../utils/api_validator');
 
 exports.crearNotificacion = async (req, res) => {
     try {
-        var { ciudadano_uid, reporte_id, reporte_status, rol, municipal_uid } = req.body;
+        var { ciudadano_uid, reporte_id, reporte_status, rol, municipal_uid , municipal_nombre} = req.body;
         api_validator.validarCampos({ ciudadano_uid, reporte_id, reporte_status, rol, municipal_uid });
 
         let titulo = "Estado de Reporte";
@@ -22,10 +22,10 @@ exports.crearNotificacion = async (req, res) => {
         const getMensaje = (rol, reporte_status, reporte_id) => {
             const mensajes = {
                 ciudadano: {
-                    "Pendiente": "Su reporte ha sido puesto nuevamente en Pendiente.",
-                    "Resuelto": "Su reporte ha sido resuelto. Si necesitas más información, contáctanos.",
-                    "Rechazado": "Lamentamos informarte que tu reporte fue rechazado. Por favor, revisa la justificación.",
-                    "En Proceso": "Tu reporte está siendo atendido. Te mantendremos informado de cualquier actualización."
+                    "Pendiente": "Su reporte ha sido puesto nuevamente en pendiente por el encargado " + municipal_nombre,
+                    "Resuelto": "Su reporte ha sido resuelto por el encargado "+municipal_nombre+".Si necesitas más información, contáctanos.",
+                    "Rechazado": "Lamentamos informarte que tu reporte fue rechazado por el encargado " + municipal_nombre+ ".Por favor, revisa el comentario.",
+                    "En Proceso": "Tu reporte está siendo atendido por el agente " +municipal_nombre +".Te mantendremos informado de cualquier actualización."
                 },
                 municipal: {
                     "Pendiente": `El reporte ${reporte_id} se encuentra nuevamente pendiente de su revisión.`,

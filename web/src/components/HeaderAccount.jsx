@@ -9,9 +9,9 @@ import { Bell, CheckCircle, AlertTriangle, Clock } from "lucide-react";
 import { formatDistanceToNow, format, parseISO } from "date-fns";
 import { es, ro } from "date-fns/locale";
 
+const API_URL_NOTIFICACIONES = process.env.API_NOTIFICATION;
 const uid = Cookies.get("uid");
-const socket = io(process.env.NEXT_PUBLIC_API_URL_NOTIFICACIONES || "https://reportes.blackgrass-9559a3b0.westus2.azurecontainerapps.io" );
-const API_URL_NOTIFICACIONES = process.env.NEXT_PUBLIC_API_URL_NOTIFICACIONES || "https://reportes.blackgrass-9559a3b0.westus2.azurecontainerapps.io";
+const socket = io(API_URL_NOTIFICACIONES, {transports: ['websocket']});
 const rol = Cookies.get("rol");
 
 export default function HeaderAccount() {
@@ -19,10 +19,15 @@ export default function HeaderAccount() {
   const [notifications, setNotifications] = useState([]);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const notificationRef = useRef(null);
 
   useEffect(() => {
-    setUserRole(Cookies.get("rol"));
+    const token = Cookies.get("token");
+    if (token) {
+      setIsAuthenticated(true);  // Si el token está presente, el usuario está autenticado
+      setUserRole(Cookies.get("rol"));
+    }
   }, []);
 
   const logout = () => {
@@ -32,30 +37,28 @@ export default function HeaderAccount() {
     Cookies.remove("uid");
     Cookies.remove("id_person");
     Cookies.remove("rol");
+    Cookies.remove("email");
+    setIsAuthenticated(false);  // Cambiar el estado a no autenticado
   };
 
-
   useEffect(() => {
-    
+    if (!isAuthenticated) return;  // No hacer nada si el usuario no está autenticado
+
     const getNotifications = async () => {
       try {
-      
-        const response = await axios.get(API_URL_NOTIFICACIONES+"/notificaciones/get/"+uid);
-        console.log(response.data.data);
+        const response = await axios.get(API_URL_NOTIFICACIONES + "/notificaciones/get/" + uid);
         setNotifications(response.data.data);
       } catch (error) {
         console.error("Error al obtener las notificaciones:", error);
       }
     };
 
-    
-
     if (rol === "municipal") {
       socket.on("notificacion_Municipales", (notification) => {
         setNotifications((prev) => [notification, ...prev]);
         setHasNewNotification(true);
       });
-    } 
+    }
     if (rol === "ciudadano") {
       socket.on("notificacion", (notification) => {
         setNotifications((prev) => [notification, ...prev]);
@@ -64,29 +67,14 @@ export default function HeaderAccount() {
     }
 
     getNotifications();
-  
 
     return () => {
       socket.off("notificacion");
       socket.off("notificacion_Municipales");
     };
+  }, [isAuthenticated, rol, uid]);
 
-  }, []);
-
-  
   // Maneja el evento de hacer clic fuera para cerrar las notificaciones
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -115,63 +103,76 @@ export default function HeaderAccount() {
 
       {/* Navegación */}
       <nav className="space-x-6 flex items-center">
-      {/* Links para municipal y ciudadano */}
-      {userRole === "municipal" ? (
-        <>
-          <Link href="/report/list" className="hover:underline">Reportes</Link>
-          <Link href="/municipal/" className="hover:underline">Cuentas</Link>
-          <Link href="/municipal/modify" className="hover:underline">Perfil</Link>
-        </>
-      ) : userRole === "ciudadano" ? (
-        <>
-          <Link href="/ciudadano/modify" className="hover:underline">Perfil</Link>
-        </>
-      ) : null}
+        {/* Links para municipal y ciudadano, solo si está autenticado */}
+        {isAuthenticated ? (
+          <>
+            {userRole === "municipal" ? (
+              <>
+                <Link href="/report/list" className="hover:underline">Reportes</Link>
+                <Link href="/municipal/modify" className="hover:underline">Perfil</Link>
+              </>
+            ) : userRole === "ciudadano" ? (
+              <>
+                <Link href="/ciudadano/modify" className="hover:underline">Perfil</Link>
+              </>
+            ) : userRole === "administrador" ? (
+              <>
+                <Link href="/administrador/" className="hover:underline">Cuentas</Link>
+                <Link href="/report/list" className="hover:underline">Reportes</Link>
+                <Link href="/ciudadano/modify" className="hover:underline">Perfil</Link>
+              </>
+            ) : null}
 
-      {/* Notificaciones */}
-      <div className="relative" ref={notificationRef}>
-        <button
-          className="relative p-2 rounded-full bg-gray-200 hover:bg-gray-300"
-          onClick={() => {
-            setShowNotifications(!showNotifications);
-            setHasNewNotification(false);
-          }}
-        >
-          <Bell className="text-gray-600" size={22} />
-          {hasNewNotification && (
-            <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
-          )}
-        </button>
+            {/* Notificaciones */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                className="relative p-2 rounded-full bg-gray-200 hover:bg-gray-300"
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setHasNewNotification(false);
+                }}
+              >
+                <Bell className="text-gray-600" size={22} />
+                {hasNewNotification && (
+                  <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                )}
+              </button>
 
-        {showNotifications && (
-          <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-300 shadow-lg p-4 rounded-lg max-h-80 overflow-y-auto">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-sm font-semibold">Notificaciones</h2>
-              {notifications.length > 0 && (
-                <button className="text-xs text-blue-500 hover:underline" onClick={markAllAsRead}>
-                  Marcar todas como leídas
-                </button>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-300 shadow-lg p-4 rounded-lg max-h-80 overflow-y-auto">
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-sm font-semibold">Notificaciones</h2>
+                    {notifications.length > 0 && (
+                      <button className="text-xs text-blue-500 hover:underline" onClick={markAllAsRead}>
+                        Marcar todas como leídas
+                      </button>
+                    )}
+                  </div>
+                  <ul className="mt-2 text-sm">
+                    {notifications.length > 0 ? (
+                      notifications.map((noti) => (
+                        <NotificationItem key={`${noti.uid}-${noti.created_at}`} notification={noti} />
+                      ))
+                    ) : (
+                      <li className="py-2 text-gray-500 text-center">No hay notificaciones</li>
+                    )}
+                  </ul>
+                </div>
               )}
             </div>
-            <ul className="mt-2 text-sm">
-              {notifications.length > 0 ? (
-                notifications.map((noti) => (
-                  <NotificationItem key={`${noti.uid}-${noti.created_at}`} notification={noti} />
-                ))
-              ) : (
-                <li className="py-2 text-gray-500 text-center">No hay notificaciones</li>
-              )}
-            </ul>
-          </div>
+
+            {/* Cerrar sesión */}
+            <Link href="/" className="px-4 py-2 border border-black text-white bg-black rounded-lg text-sm">
+              <span onClick={logout}>Cerrar sesión</span>
+            </Link>
+          </>
+        ) : (
+          // Si no está autenticado, mostrar enlace para iniciar sesión
+          <Link href="/login" className="px-4 py-2 border border-black text-black rounded-lg text-sm">
+            Iniciar sesión
+          </Link>
         )}
-      </div>
-
-      {/* Cerrar sesión */}
-      <Link href="/" className="px-4 py-2 border border-black text-white bg-black rounded-lg text-sm">
-        <span onClick={logout}>Cerrar sesión</span>
-      </Link>
-    </nav>
-
+      </nav>
     </header>
   );
 }

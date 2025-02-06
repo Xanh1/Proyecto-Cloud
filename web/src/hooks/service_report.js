@@ -63,6 +63,17 @@ export async function update_report(data, token){
     return datos.data
 }
 
+export async function delete_report(data, token){
+    let datos = null;
+    try{
+        datos = await POST_RP('report/delete', data, token);
+    }
+    catch(error){
+        return error;
+    }
+    return datos.data
+}
+
 export async function create_report(params) {
     let datos = null;
     try{

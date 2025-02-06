@@ -41,7 +41,6 @@ export default function newPerson() {
   let { errors } = formState;
 
   const enviar_data = (data) => {
-    console.log();
     save_person(data, token).then((info) => {
       if (info.code == "200") {
         swal({

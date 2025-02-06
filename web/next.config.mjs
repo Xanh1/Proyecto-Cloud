@@ -8,7 +8,7 @@ const nextConfig = {
     // }
     env: {
         API_ACCOUNT_SERVICE: "https://autenticacion.blackgrass-9559a3b0.westus2.azurecontainerapps.io/",
-        API_REPORT_SERVICE: "https://reportes.blackgrass-9559a3b0.westus2.azurecontainerapps.io/",
+        API_REPORT_SERVICE: "https://reportes.blackgrass-9559a3b0.westus2.azurecontainerapps.io",
         API_NOTIFICATION: "https://notificaciones.blackgrass-9559a3b0.westus2.azurecontainerapps.io/"
         
     }

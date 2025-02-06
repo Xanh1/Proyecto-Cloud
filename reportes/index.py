@@ -1,8 +1,14 @@
 from app import create_app
+from flask_cors import CORS
 from jsonschema import ValidationError
 from flask import jsonify, make_response, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = create_app()
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+CORS(app, supports_credentials=True)
 
 @app.after_request
 def after_request_func(response):
